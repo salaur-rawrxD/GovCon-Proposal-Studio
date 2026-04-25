@@ -114,7 +114,7 @@ export function OpportunityView() {
   }
 
   return (
-    <div className="space-y-8">
+    <div className="mx-auto max-w-5xl space-y-8 px-4 py-6 sm:px-6">
       <div>
         <button type="button" onClick={() => router.push("/dashboard")} className="text-sm text-cyan-800 hover:underline">
           ← Back

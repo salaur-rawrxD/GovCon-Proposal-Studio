@@ -11,7 +11,7 @@ export default function NewOpportunityPage() {
   const [loading, setLoading] = useState(false);
 
   return (
-    <div className="mx-auto max-w-lg space-y-6">
+    <div className="mx-auto max-w-lg space-y-6 px-4 py-6 sm:px-6">
       <h1 className="text-2xl font-semibold text-zinc-900">New opportunity</h1>
       <form
         className="space-y-4"
