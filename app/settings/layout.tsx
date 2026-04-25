@@ -12,7 +12,7 @@ export default function SettingsLayout({ children }: { children: React.ReactNode
         </p>
       </div>
       <SettingsSubnav />
-      <div className="mt-8">{children}</div>
+      <div className="mt-8 rounded-lg border-2 border-border/50 bg-surface p-5 sm:p-6 lg:p-7">{children}</div>
     </PageContainer>
   );
 }

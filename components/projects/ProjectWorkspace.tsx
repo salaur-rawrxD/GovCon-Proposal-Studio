@@ -185,7 +185,7 @@ export function ProjectWorkspace({ project: initial }: Props) {
   const [chat, setChat] = useState<ProposalChatMessage[]>(() => getSampleChatForSection());
   const [analysisChat, setAnalysisChat] = useState<ProposalChatMessage[]>(() => getSampleAnalysisChat());
   const [analysisNotes, setAnalysisNotes] = useState("");
-  const [rightOpen, setRightOpen] = useState(true);
+  const [rightOpen, setRightOpen] = useState(false);
   const [exportMarked, setExportMarked] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -304,23 +304,25 @@ export function ProjectWorkspace({ project: initial }: Props) {
   return (
     <AppShell className="space-y-0">
       <TopNav items={[{ href: "/projects", label: "Projects" }]} trail={project.name}>
-        <div className="hidden gap-2 sm:flex">
+        <div className="flex gap-2">
           <Button
             type="button"
-            variant="outline"
+            variant={rightOpen ? "secondary" : "default"}
             size="sm"
             className="gap-1"
             onClick={() => setRightOpen((o) => !o)}
             aria-pressed={rightOpen}
+            title={rightOpen ? "Hide copilot for more reading room" : "Open proposal copilot"}
           >
             <PanelRight className="h-3.5 w-3.5" />
-            Copilot
+            <span className="hidden sm:inline">{rightOpen ? "Hide copilot" : "Copilot"}</span>
+            <span className="sm:hidden">AI</span>
           </Button>
         </div>
       </TopNav>
 
-      <div className="border-b border-border/40 bg-muted/25 px-4 py-5 shadow-sm shadow-black/[0.02] dark:shadow-none">
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+      <div className="border-b border-border/60 bg-surface px-4 py-6 shadow-sm">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-5 rounded-lg border border-border/50 bg-background/50 px-4 py-4 sm:px-5 lg:flex-row lg:items-start lg:justify-between">
           <div className="min-w-0 space-y-1.5">
             <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Opportunity</p>
             <h1 className="text-balance text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{project.rfpTitle}</h1>
@@ -353,12 +355,12 @@ export function ProjectWorkspace({ project: initial }: Props) {
       </div>
 
       <div id="workspace-main" className="mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col gap-0 lg:flex-row">
-        <aside className="hidden w-56 shrink-0 border-r border-border/40 bg-card/30 lg:block">
-          <p className="px-3 pt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Workspace</p>
+        <aside className="hidden w-56 shrink-0 border-r border-border/50 bg-surface/90 lg:block">
+          <p className="px-3 pt-4 text-[10px] font-bold uppercase tracking-[0.12em] text-text-secondary">Workspace</p>
           <SidebarNav items={TABS} value={tab} onValueChange={setTab} />
         </aside>
 
-        <div className="border-b border-border/40 bg-muted/10 p-3 lg:hidden">
+        <div className="border-b border-border/50 bg-surface/80 p-3 lg:hidden">
           <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
             Section
           </label>
@@ -377,9 +379,9 @@ export function ProjectWorkspace({ project: initial }: Props) {
         </div>
 
         <div className="flex min-w-0 flex-1">
-          <main className="min-w-0 flex-1 space-y-6 p-4 lg:px-8 lg:py-6">
-            <div className="flex items-baseline gap-2 border-b border-border/30 pb-3">
-              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Workspace</span>
+          <main className="min-w-0 flex-1 space-y-6 p-4 sm:p-5 lg:px-10 lg:py-8">
+            <div className="flex items-baseline gap-2 border-b border-border/50 pb-3">
+              <span className="text-[10px] font-bold uppercase tracking-[0.12em] text-text-secondary">Workspace</span>
               <span className="text-muted-foreground/50" aria-hidden>
                 /
               </span>
@@ -700,7 +702,7 @@ export function ProjectWorkspace({ project: initial }: Props) {
           </main>
 
           {showAssistant && (
-            <aside className="hidden w-full max-w-md shrink-0 border-l border-border/50 p-3 lg:block lg:w-96">
+            <aside className="hidden w-full max-w-sm shrink-0 border-l border-border/60 bg-surface/60 p-2 lg:block lg:w-72">
               {tab === "response-draft" ? (
                 <AIChatPanel
                   section={selected}

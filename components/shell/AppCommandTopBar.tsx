@@ -1,10 +1,12 @@
 "use client";
 
 import { usePathname } from "next/navigation";
-import { Menu, Shield, Circle } from "lucide-react";
+import { ChevronsLeft, ChevronsRight, Menu, Shield } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { useNavLayout } from "@/contexts/NavLayoutContext";
 import { AppSidebar } from "./AppSidebar";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { cn } from "@/lib/utils";
 
 function titleForPath(pathname: string) {
@@ -25,9 +27,21 @@ function titleForPath(pathname: string) {
 export function AppCommandTopBar() {
   const pathname = usePathname() ?? "/";
   const title = titleForPath(pathname);
+  const { navCollapsed, toggleNav } = useNavLayout();
   return (
-    <header className="sticky top-0 z-30 flex h-12 shrink-0 items-center justify-between border-b border-border/80 bg-surface pl-2 pr-3 sm:pl-4">
-      <div className="flex min-w-0 items-center gap-2 sm:gap-3">
+    <header className="sticky top-0 z-30 flex h-12 shrink-0 items-center justify-between border-b border-border/80 bg-surface pl-1 pr-3 sm:pl-2">
+      <div className="flex min-w-0 items-center gap-1.5 sm:gap-2">
+        <Button
+          type="button"
+          variant="ghost"
+          size="icon-sm"
+          className="hidden shrink-0 text-primary md:inline-flex"
+          onClick={toggleNav}
+          aria-pressed={!navCollapsed}
+          title={navCollapsed ? "Expand navigation" : "Collapse navigation"}
+        >
+          {navCollapsed ? <ChevronsRight className="h-4 w-4" /> : <ChevronsLeft className="h-4 w-4" />}
+        </Button>
         <Sheet>
           <SheetTrigger
             className={cn(
@@ -42,32 +56,28 @@ export function AppCommandTopBar() {
             <SheetHeader className="sr-only">
               <SheetTitle>Navigation</SheetTitle>
             </SheetHeader>
-            <AppSidebar />
+            <AppSidebar layout="sheet" />
           </SheetContent>
         </Sheet>
-        <div className="min-w-0">
+        <div className="min-w-0 pl-0.5">
           <h1 className="truncate text-sm font-semibold tracking-[-0.01em] text-foreground sm:text-base">{title}</h1>
           <p className="hidden text-xs text-text-secondary sm:block">Authorized command workspace</p>
         </div>
       </div>
       <div className="flex items-center gap-1.5 sm:gap-2">
-        <span
-          className="inline-flex items-center gap-1 rounded border border-border/80 bg-background px-1.5 py-0.5 text-[10px] font-medium text-muted-foreground"
-          title="Environment"
-        >
-          <Circle className="h-2 w-2 fill-success text-success" />
+        <StatusBadge variant="success" className="h-6 px-2 text-[10px] font-bold">
           Session
-        </span>
+        </StatusBadge>
         <div className="hidden h-4 w-px bg-border/80 sm:block" />
         <span
           className={cn(
-            buttonVariants({ variant: "secondary", size: "xs" }),
-            "hidden h-6 gap-1 sm:inline-flex"
+            "inline-flex h-6 items-center gap-1.5 rounded-md border-2 border-primary bg-surface px-2 text-[10px] font-bold text-primary",
+            "hidden sm:inline-flex"
           )}
-          title="Compliance posture (preview)"
+          title="Compliance review queue (preview)"
         >
-          <Shield className="h-3 w-3 text-structure" />
-          <span className="text-foreground/80">Review</span>
+          <Shield className="h-3.5 w-3.5 text-primary" />
+          Review
         </span>
       </div>
     </header>
