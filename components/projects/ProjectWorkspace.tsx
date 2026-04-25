@@ -532,17 +532,26 @@ export function ProjectWorkspace({ project: initial }: Props) {
             )}
 
             {tab === "compliance" && (
-              <Card className="border-border/50 ring-1 ring-border/5">
-                <CardHeader>
-                  <CardTitle className="text-base">Compliance matrix</CardTitle>
-                  <CardDescription>
-                    Map each requirement to your response location, owner, and substantiating evidence for evaluators.
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ComplianceMatrixTable rows={compliance} />
-                </CardContent>
-              </Card>
+              <div className="mx-auto max-w-5xl space-y-2">
+                <p className="text-xs font-bold uppercase tracking-[0.2em] text-text-secondary">Track</p>
+                <h2 className="text-lg font-semibold text-foreground">Requirement coverage</h2>
+                <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
+                  Map each solicitation requirement to a response location, status, and owner so evaluators can trace proof without hunting through volumes.
+                </p>
+                <Card className="mt-6 border-2 border-border/40 bg-surface/60 shadow-sm">
+                  <CardHeader className="space-y-1 pb-4">
+                    <CardTitle className="text-base">Compliance matrix</CardTitle>
+                    <CardDescription className="text-sm leading-relaxed">
+                      Use the summary strip for a quick read, then filter and work rows top to bottom.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="px-0 pb-6 sm:px-0">
+                    <div className="px-1 sm:px-4">
+                      <ComplianceMatrixTable rows={compliance} />
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             )}
 
             {tab === "response-draft" && (
@@ -572,13 +581,22 @@ export function ProjectWorkspace({ project: initial }: Props) {
             )}
 
             {tab === "review" && (
-              <div className="grid gap-4 lg:grid-cols-2">
-                <Card className="border-border/50 ring-1 ring-border/5">
-                  <CardHeader>
+              <div className="mx-auto max-w-4xl space-y-10">
+                <header className="space-y-2">
+                  <p className="text-xs font-bold uppercase tracking-[0.2em] text-text-secondary">Quality gate</p>
+                  <h2 className="text-lg font-semibold text-foreground">Pre-submission review</h2>
+                  <p className="max-w-2xl text-sm leading-relaxed text-text-secondary">
+                    Clear the approval checklist, close gaps, and resolve flags before you lock the final package.
+                    Quality index (illustrative): <span className="font-semibold text-foreground">{quality}</span> of 100.
+                  </p>
+                </header>
+
+                <Card className="border-2 border-border/40 bg-surface/70 shadow-sm">
+                  <CardHeader className="space-y-1 pb-2">
                     <CardTitle className="text-base">Readiness and approval</CardTitle>
-                    <CardDescription>Quality index (illustrative): {quality} of 100</CardDescription>
+                    <CardDescription>Section gates and package readiness for final assembly.</CardDescription>
                   </CardHeader>
-                  <CardContent>
+                  <CardContent className="pt-2">
                     <ApprovalChecklist
                       items={reviewItems}
                       approvedSectionCount={approvedCount}
@@ -593,64 +611,88 @@ export function ProjectWorkspace({ project: initial }: Props) {
                     />
                   </CardContent>
                 </Card>
-                <Card className="border-border/50 ring-1 ring-border/5">
+
+                <div>
+                  <h3 className="text-sm font-semibold text-foreground">Gaps and inputs</h3>
+                  <p className="mt-1 text-sm text-text-secondary">Risks, missing artifacts, and compliance items to address.</p>
+                  <div className="mt-5 grid gap-5 md:grid-cols-3">
+                    <Card className="border-2 border-border/40 bg-surface/50">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium">Program risks</CardTitle>
+                      </CardHeader>
+                      <CardContent className="text-sm text-muted-foreground">
+                        {project.openRisks.length ? (
+                          <ul className="list-inside list-disc space-y-2 leading-relaxed text-foreground/90">
+                            {project.openRisks.map((r) => (
+                              <li key={r}>{r}</li>
+                            ))}
+                          </ul>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No risks recorded.</p>
+                        )}
+                      </CardContent>
+                    </Card>
+                    <Card className="border-2 border-border/40 bg-surface/50">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium">Outstanding inputs</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="list-inside list-disc space-y-2 text-sm leading-relaxed text-foreground/90">
+                          {review.missing.map((m) => (
+                            <li key={m} className="text-muted-foreground">
+                              {m}
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                    <Card className="border-2 border-border/40 bg-surface/50">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium">Compliance findings</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <ul className="list-inside list-disc space-y-2 text-sm leading-relaxed text-foreground/90">
+                          {review.issues.map((m) => (
+                            <li key={m} className="text-muted-foreground">
+                              {m}
+                            </li>
+                          ))}
+                        </ul>
+                      </CardContent>
+                    </Card>
+                  </div>
+                </div>
+
+                <Card className="border-2 border-border/40 bg-surface/70 shadow-sm">
                   <CardHeader>
-                    <CardTitle className="text-base">Gaps and inputs</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4 text-sm">
-                    <div>
-                      <p className="font-medium">Program risks</p>
-                      <ul className="mt-1 list-inside list-disc text-muted-foreground">
-                        {project.openRisks.map((r) => (
-                          <li key={r}>{r}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div>
-                      <p className="font-medium">Outstanding inputs</p>
-                      <ul className="mt-1 list-inside list-disc text-muted-foreground">
-                        {review.missing.map((m) => (
-                          <li key={m}>{m}</li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div>
-                      <p className="font-medium">Compliance findings</p>
-                      <ul className="mt-1 list-inside list-disc text-muted-foreground">
-                        {review.issues.map((m) => (
-                          <li key={m}>{m}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </CardContent>
-                </Card>
-                <Card className="lg:col-span-2 border-border/50 ring-1 ring-border/5">
-                  <CardHeader>
-                    <CardTitle className="text-base flex items-center gap-2">
-                      <MessageSquare className="h-4 w-4" />
+                    <CardTitle className="flex items-center gap-2 text-base">
+                      <MessageSquare className="h-4 w-4 text-primary" />
                       Reviewer notes
                     </CardTitle>
+                    <CardDescription>Thread from proposal and capture reviewers.</CardDescription>
                   </CardHeader>
-                  <CardContent className="space-y-2">
+                  <CardContent className="space-y-4">
                     {review.comments.map((c) => (
-                      <div key={c.id} className="rounded-md border p-2 text-sm">
-                        <p className="text-xs text-muted-foreground">
+                      <div key={c.id} className="rounded-xl border-2 border-border/35 bg-background/50 px-4 py-3.5 text-sm">
+                        <p className="text-xs font-medium text-muted-foreground">
                           {c.who} · {c.when}
                         </p>
-                        <p className="mt-1">{c.text}</p>
+                        <p className="mt-2 leading-relaxed text-foreground">{c.text}</p>
                       </div>
                     ))}
                   </CardContent>
                 </Card>
-                <Card className="lg:col-span-2 border-amber-500/20 bg-amber-500/[0.04]">
+
+                <Card className="border-2 border-amber-500/25 bg-amber-500/[0.06] shadow-sm">
                   <CardHeader>
                     <CardTitle className="flex items-center gap-2 text-base text-amber-950 dark:text-amber-200">
                       <AlertTriangle className="h-4 w-4" />
                       Evaluation risk flags
                     </CardTitle>
+                    <CardDescription>Items that could cost factor points if left unresolved.</CardDescription>
                   </CardHeader>
                   <CardContent>
-                    <ul className="list-inside list-disc text-sm text-muted-foreground">
+                    <ul className="list-inside list-disc space-y-2.5 text-sm leading-relaxed text-muted-foreground">
                       {review.flags.map((f) => (
                         <li key={f} className="text-foreground/90">
                           {f}

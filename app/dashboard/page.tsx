@@ -8,6 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import { PageContainer } from "@/components/shell/PageContainer";
 import { useProjectData } from "@/contexts/ProjectDataContext";
+import { getOpenRfpCount, getOpenTaskCount, getSubmittedResponseCount } from "@/lib/dashboard/metrics";
 import { seedSubmitted } from "@/lib/mock/seed";
 import { isIsoDateString } from "@/lib/schedule/milestones";
 import { cn } from "@/lib/utils";
@@ -28,13 +29,9 @@ export default function DashboardPage() {
   const recent = [...projects].sort((a, b) => b.lastUpdated.localeCompare(a.lastUpdated)).slice(0, 5);
 
   const submitted = seedSubmitted;
-  const totalSub = submitted.length;
-  const wins = submitted.filter((s) => s.status === "won").length;
-  const pending = submitted.filter((s) => s.status === "pending" || s.status === "shortlisted").length;
-  const winRate = totalSub ? Math.round((wins / totalSub) * 100) : 0;
-  const pipeline = submitted
-    .filter((s) => s.status === "pending" || s.status === "submitted" || s.status === "shortlisted")
-    .length;
+  const openRfpCount = getOpenRfpCount(projects);
+  const openTaskCount = getOpenTaskCount(projects);
+  const submittedResponseCount = getSubmittedResponseCount();
 
   type UrgentRow = { id: string; name: string; dateLabel: string; days: number; href: string; sub: string };
   const upcomingRows: UrgentRow[] = [];
@@ -121,31 +118,43 @@ export default function DashboardPage() {
         </Link>
       </div>
 
-      <div className="mb-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="border border-border/60 bg-surface shadow-sm">
-          <CardHeader className="pb-2">
-            <CardDescription>Submissions (all time)</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums text-foreground">{totalSub}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card className="border border-border/60 bg-surface shadow-sm">
-          <CardHeader className="pb-2">
-            <CardDescription>Win rate</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums text-foreground">{winRate}%</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card className="border border-border/60 bg-surface shadow-sm">
-          <CardHeader className="pb-2">
-            <CardDescription>Awaiting decision</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums text-foreground">{pending}</CardTitle>
-          </CardHeader>
-        </Card>
-        <Card className="border border-border/60 bg-surface shadow-sm">
-          <CardHeader className="pb-2">
-            <CardDescription>In evaluation</CardDescription>
-            <CardTitle className="text-2xl font-semibold tabular-nums text-foreground">{pipeline}</CardTitle>
-          </CardHeader>
-        </Card>
+      <div className="mb-10 grid gap-4 sm:grid-cols-3">
+        <Link
+          href="/projects"
+          className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <Card className="h-full border-2 border-border/50 bg-surface shadow-sm transition group-hover:border-primary/35 group-hover:shadow-md">
+            <CardHeader className="pb-2">
+              <CardDescription>Open RFPs</CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums text-foreground">{openRfpCount}</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 text-sm text-primary group-hover:underline">View projects</CardContent>
+          </Card>
+        </Link>
+        <Link
+          href="#open-tasks"
+          className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <Card className="h-full border-2 border-border/50 bg-surface shadow-sm transition group-hover:border-primary/35 group-hover:shadow-md">
+            <CardHeader className="pb-2">
+              <CardDescription>Open tasks</CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums text-foreground">{openTaskCount}</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 text-sm text-text-secondary">Across active responses</CardContent>
+          </Card>
+        </Link>
+        <Link
+          href="/submitted-rfps"
+          className="group block rounded-lg outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        >
+          <Card className="h-full border-2 border-border/50 bg-surface shadow-sm transition group-hover:border-primary/35 group-hover:shadow-md">
+            <CardHeader className="pb-2">
+              <CardDescription>Submitted responses</CardDescription>
+              <CardTitle className="text-2xl font-semibold tabular-nums text-foreground">{submittedResponseCount}</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 text-sm text-primary group-hover:underline">View submissions</CardContent>
+          </Card>
+        </Link>
       </div>
 
       <section className="mb-10">
@@ -196,7 +205,7 @@ export default function DashboardPage() {
         )}
       </section>
 
-      <section className="mb-10">
+      <section id="open-tasks" className="mb-10 scroll-mt-8">
         <div className="mb-3 flex items-center gap-2">
           <ListTodo className="h-4 w-4 text-primary" aria-hidden />
           <h2 className="text-sm font-bold uppercase tracking-[0.1em] text-foreground">Open tasks</h2>
