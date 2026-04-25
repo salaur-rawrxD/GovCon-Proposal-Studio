@@ -1,0 +1,27 @@
+# Validates every push and pull request. Vercel still runs its own build on deploy.
+name: CI
+on:
+  push:
+    branches: [main, develop, demo]
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run build
+        env:
+          # Build must succeed without real secrets; app uses in-memory store when env is empty.
+          NEXT_TELEMETRY_DISABLED: "1"
