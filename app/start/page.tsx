@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
-import { Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -12,8 +11,8 @@ import { FileUploadDropzone } from "@/components/app/FileUploadDropzone";
 import { FileListStaged } from "@/components/app/FileList";
 import { useProjectData } from "@/contexts/ProjectDataContext";
 import { acceptUpload } from "@/lib/mock/file-utils";
-import { cn } from "@/lib/utils";
 import { Progress } from "@/components/ui/progress";
+import { AgentProgressTimeline } from "@/components/ui/agent-progress-timeline";
 
 type Staged = {
   id: string;
@@ -21,12 +20,7 @@ type Staged = {
   status: "uploading" | "ready";
 };
 
-const STEPS = [
-  "Ingesting documents",
-  "Structuring content",
-  "Extracting requirements",
-  "Scoring opportunity fit",
-] as const;
+const PIPELINE_STEPS = 4;
 
 export default function StartNewResponsePage() {
   const router = useRouter();
@@ -65,21 +59,22 @@ export default function StartNewResponsePage() {
     setProgressOpen(true);
     setStepIndex(0);
     const stepMs = 800;
-    STEPS.forEach((_, i) => {
+    for (let i = 0; i < PIPELINE_STEPS; i++) {
       setTimeout(() => setStepIndex(i), i * stepMs);
-    });
+    }
     setTimeout(() => {
       setProgressOpen(false);
       setCreating(false);
       router.push(`/projects/${projectId}?tab=rfp-analysis`);
-    }, STEPS.length * stepMs + 400);
+    }, PIPELINE_STEPS * stepMs + 400);
   };
 
   return (
     <PageContainer className="max-w-3xl">
       <div className="mb-10 max-w-2xl">
-        <h1 className="text-balance text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">New response</h1>
-        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-secondary">New opportunity</p>
+        <h1 className="heading-1 mt-1">New response</h1>
+        <p className="body mt-2">
           Upload the solicitation and attachments. A dedicated project workspace is created, documents are ingested, and
           the opportunity analysis opens next so your team can align on fit before drafting.
         </p>
@@ -161,29 +156,9 @@ export default function StartNewResponsePage() {
                 workspace.
               </CardDescription>
             </CardHeader>
-            <CardContent className="space-y-3">
-              <Progress value={((stepIndex + 1) / STEPS.length) * 100} className="h-1.5" />
-              <ol className="space-y-2 text-sm text-foreground/90">
-                {STEPS.map((s, i) => (
-                  <li
-                    key={s}
-                    className={cn(
-                      "flex items-center gap-2.5 rounded-md border px-3 py-2",
-                      i < stepIndex && "border-emerald-500/25 bg-emerald-500/[0.06]",
-                      i === stepIndex && "border-primary/30 bg-primary/[0.06]"
-                    )}
-                  >
-                    {i < stepIndex ? (
-                      <Check className="h-4 w-4 text-emerald-600" />
-                    ) : i === stepIndex ? (
-                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                    ) : (
-                      <span className="h-4 w-4 rounded-full border border-border" />
-                    )}
-                    {s}
-                  </li>
-                ))}
-              </ol>
+            <CardContent className="space-y-4">
+              <Progress value={((stepIndex + 1) / PIPELINE_STEPS) * 100} className="h-1.5" />
+              <AgentProgressTimeline activeIndex={stepIndex} />
             </CardContent>
           </Card>
         </div>

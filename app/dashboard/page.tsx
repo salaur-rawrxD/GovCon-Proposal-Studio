@@ -39,12 +39,19 @@ export default function DashboardPage() {
     <PageContainer>
       <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
         <div className="max-w-2xl">
-          <h1 className="text-balance text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Home</h1>
-          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          <p className="text-xs font-semibold uppercase tracking-[0.2em] text-text-secondary">Command</p>
+          <h1 className="heading-1 mt-1">Home</h1>
+          <p className="body mt-2">
             Active response projects, upcoming due dates, and recent submission outcomes in one view.
           </p>
+          <p className="mt-3 text-xs text-text-secondary">
+            Sample layout:{" "}
+            <Link className="font-medium text-primary underline-offset-2 hover:underline" href="/opportunities/preview/detail">
+              Opportunity detail (preview)
+            </Link>
+          </p>
         </div>
-        <Link href="/start" className={cn(buttonVariants(), "shrink-0 gap-1.5 self-start sm:self-auto")}>
+        <Link href="/start" className={cn(buttonVariants(), "h-9 shrink-0 gap-1.5 self-start px-3 sm:self-auto")}>
           <Plus className="h-4 w-4" />
           New response
         </Link>
