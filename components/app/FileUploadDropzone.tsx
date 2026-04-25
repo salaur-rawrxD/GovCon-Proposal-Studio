@@ -6,6 +6,9 @@ type Props = {
   onPickFiles: (files: FileList | null) => void;
   className?: string;
   id?: string;
+  /** `accept` for the file input, e.g. `image/png,image/svg+xml` */
+  accept?: string;
+  multiple?: boolean;
   /** Shown in the drop zone */
   title?: string;
   subtitle?: string;
@@ -16,6 +19,8 @@ export function FileUploadDropzone({
   onPickFiles,
   className,
   id: inputId = "file-upload",
+  accept,
+  multiple = true,
   title = "Upload files",
   subtitle = "PDF, Word, CSV, or Excel",
   children,
@@ -25,7 +30,8 @@ export function FileUploadDropzone({
       <input
         id={inputId}
         type="file"
-        multiple
+        multiple={multiple}
+        accept={accept}
         className="sr-only"
         onChange={(e) => onPickFiles(e.target.files)}
       />

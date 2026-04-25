@@ -1,3 +1,4 @@
+import { buildAnalysisSnapshotMilestones } from "@/lib/schedule/milestones";
 import {
   type ComplianceMatrixRow,
   type ProposalSectionModel,
@@ -12,11 +13,9 @@ function baseAnalysis(p: Project): RfpFullAnalysis {
     snapshot: {
       agency: p.agency,
       projectName: p.rfpTitle,
-      keyDeadlines: [
-        { label: "Proposals/bids due", date: p.dueDate },
-        { label: "Q&A (if not closed)", date: "as posted in FBO / eBuy" },
-        { label: "Oral / demo (as applicable)", date: "TBD per amendment" },
-      ],
+      keyDeadlines: buildAnalysisSnapshotMilestones({ keyDeadlines: p.keyDeadlines, dueDate: p.dueDate }),
+      solicitationUrl: p.agencyPortalUrl,
+      agencyContact: p.agencyPoc,
       submissionMethod: "Grants.gov / SAM.gov / Agency portal as stated in Section L. Electronic submission; page limits per Section 4.0.",
       contractType: "Firm fixed price with optional CLINs; potential hybrid with time-and-materials for surge sustainment, per PWS 2.1.",
       evaluationSummary:
@@ -359,6 +358,27 @@ export function getProposalSectionTemplates(p: Project): ProposalSectionModel[] 
 
 export function getSampleChatForSection(): ProposalChatMessage[] {
   return TECH_CHAT;
+}
+
+const ANALYSIS_CHAT: ProposalChatMessage[] = [
+  {
+    id: "a1",
+    role: "user",
+    content: "Summarize the strongest basis for our pursuit recommendation in three bullets an executive can repeat in gate review.",
+    sectionId: "analysis",
+  },
+  {
+    id: "a2",
+    role: "assistant",
+    content:
+      "Here is a concise gate-review summary you can read verbatim or drop into your capture brief.",
+    sectionId: "analysis",
+    suggestedRevision: `• **Fit to requirements:** The solicitation aligns with our DevSecOps, cATO, and federal operations credentials; the PWS language maps cleanly to evidence we already maintain in the knowledge base.\n• **Disciplined risk:** Gaps (e.g., CMMC packaging, second civil reference) are identifiable and mitigable before submission with named owners—no unknown unknowns on the critical path.\n• **Evaluation focus:** Technical approach and past performance carry the score; our win story should lead with measurable outcomes and Section M traceability, not generic cloud claims.`,
+  },
+];
+
+export function getSampleAnalysisChat(): ProposalChatMessage[] {
+  return ANALYSIS_CHAT;
 }
 
 export function getReviewComments(p: Project) {

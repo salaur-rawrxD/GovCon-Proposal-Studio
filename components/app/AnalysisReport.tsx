@@ -74,6 +74,41 @@ export function AnalysisReport({ analysis, onBeginDrafting, className }: Props) 
                 ))}
               </ul>
             </div>
+            {a.snapshot.solicitationUrl?.trim() ? (
+              <div>
+                <p className="text-xs font-medium uppercase text-muted-foreground">Opportunity / portal</p>
+                <a
+                  href={a.snapshot.solicitationUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-0.5 inline-flex items-center gap-1 text-primary underline-offset-2 hover:underline"
+                >
+                  {a.snapshot.solicitationUrl}
+                  <span className="sr-only">(opens in new tab)</span>
+                </a>
+              </div>
+            ) : null}
+            {(a.snapshot.agencyContact.name ||
+              a.snapshot.agencyContact.title ||
+              a.snapshot.agencyContact.email ||
+              a.snapshot.agencyContact.phone ||
+              a.snapshot.agencyContact.organization) && (
+              <div>
+                <p className="text-xs font-medium uppercase text-muted-foreground">Agency point of contact (as in workspace)</p>
+                <p className="mt-0.5">
+                  {a.snapshot.agencyContact.name}
+                  {a.snapshot.agencyContact.title ? <span> · {a.snapshot.agencyContact.title}</span> : null}
+                </p>
+                {a.snapshot.agencyContact.organization ? (
+                  <p className="text-muted-foreground">{a.snapshot.agencyContact.organization}</p>
+                ) : null}
+                <p className="text-muted-foreground">
+                  {a.snapshot.agencyContact.email}
+                  {a.snapshot.agencyContact.email && a.snapshot.agencyContact.phone ? " · " : null}
+                  {a.snapshot.agencyContact.phone}
+                </p>
+              </div>
+            )}
             <div className="grid gap-2 sm:grid-cols-2">
               <div>
                 <p className="text-xs font-medium uppercase text-muted-foreground">Submission method</p>

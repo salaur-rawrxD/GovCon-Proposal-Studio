@@ -17,3 +17,7 @@ export function formatSize(bytes: number): string {
 
 export const acceptUpload =
   "application/pdf,.pdf,.doc,.docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,.csv,.xls,.xlsx,text/csv,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+
+/** Logos and brand marks (covers / exports) */
+export const acceptImageUpload =
+  "image/png,image/jpeg,image/webp,image/svg+xml,.png,.jpg,.jpeg,.webp,.svg";

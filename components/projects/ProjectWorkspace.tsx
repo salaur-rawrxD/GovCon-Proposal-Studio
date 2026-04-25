@@ -14,7 +14,6 @@ import {
   MessageSquare,
   Package,
   PanelRight,
-  Send,
   Shield,
 } from "lucide-react";
 import { AppShell } from "@/components/app/AppShell";
@@ -50,6 +49,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useProjectData } from "@/contexts/ProjectDataContext";
+import { OpportunitySchedulePanel } from "@/components/projects/OpportunitySchedulePanel";
 import type { Project, ProposalSectionModel, ProposalChatMessage, ProjectReviewItem, FitRecommendation } from "@/lib/mock/types";
 import { acceptUpload } from "@/lib/mock/file-utils";
 import {
@@ -57,6 +57,7 @@ import {
   getComplianceMatrix,
   getProposalSectionTemplates,
   getSampleChatForSection,
+  getSampleAnalysisChat,
   getReviewComments,
   getFinalQualityScore,
 } from "@/lib/mock/workspace-mock";
@@ -121,14 +122,51 @@ function mockReply(userText: string, sectionId: string): { content: string; revi
   };
 }
 
+function analysisMockReply(userText: string, p: Project): { content: string; suggestedRevision: string } {
+  const t = userText.toLowerCase();
+  const rec = PURSUIT_REC[p.recommendation];
+  if (t.includes("risk") || t.includes("gap") || t.includes("mitigat")) {
+    return {
+      content:
+        "The report’s gaps and risks section is the right anchor. For gate review, stress owners, dates, and traceability to PWS or Section M language.",
+      suggestedRevision: `Risks to track from this read:\n• **CMMC / 800-171** — close artifact gaps; align POA&M narrative with the proposed start and ISSO sign-off path.\n• **Past performance** — strengthen a civil-agency reference with quantified outcomes in the expected TCV band.\n• **SIEM / logging** — prove connector and retention design against the PWS security paragraphs before you freeze the architecture diagram.\n\nCopy into your capture log and assign owners.`,
+    };
+  }
+  if (t.includes("section m") || t.includes("evaluat") || t.includes("factor")) {
+    return {
+      content:
+        "Mirror the RFP: technical approach (incl. security and transition) and past performance typically drive the non-price score, then cost. Your summary should follow that order.",
+      suggestedRevision: `**Section M alignment (short talk track)**\n1. **Technical** — For each major PWS theme, one proof: deliverable, metric, owner. Lead with cATO, production operability, and change control.\n2. **Past performance** — Three references, each tied to the relevance tests in the solicitation; cite CPARS themes where you have them.\n3. **Price** — CLINs and BOE match the schedule; state assumptions and options clearly.\n4. **L compliance** — Representations, 508, and data rights as required by Section L.\n\nUse the solicitation’s factor titles verbatim in slide or volume headings where allowed.`,
+    };
+  }
+  if (t.includes("question") || t.includes("q&a") || t.includes("clarif")) {
+    return {
+      content:
+        "Target questions that remove scoring ambiguity: ATO scope, required tooling, and evaluation logistics (orals, demos, submission media).",
+      suggestedRevision: `**Candidate questions (if the Q&A or industry day allows)**\n• What is the defined authorization boundary for year one, and is tenant-level cATO in scope for the awardee?\n• Are specific SIEM or logging stacks mandated or merely referenced?\n• If oral interviews are used, are environment and data restrictions specified for demonstrators?\n\nRecord answers in the compliance matrix and adjust win themes accordingly.`,
+    };
+  }
+  return {
+    content: `I am using your **opportunity fit (${p.fitScore}/100)** and **${rec}** recommendation. Ask about risks, Section M, win themes, or questions for the government to go deeper.`,
+    suggestedRevision: `**Executive one-liner for capture / gate review**\nThis opportunity scores **${p.fitScore}/100** on fit with a **${rec}** read: we align on core DevSecOps and federal operations proof; the main mitigations are compliance packaging depth and, where needed, an additional on-point performance reference. **Next:** lock the top three win themes and Section M call-outs before the team drafts in earnest.\n\n— Copilot (preview)`,
+  };
+}
+
 type Props = { project: Project };
 
 export function ProjectWorkspace({ project: initial }: Props) {
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { addFilesToProject, getProject, updateProject } = useProjectData();
+  const { addFilesToProject, getProject, updateProject: patchProject } = useProjectData();
   const project = getProject(initial.id) ?? initial;
+
+  const applyProjectPatch = useCallback(
+    (patch: Partial<Project>) => {
+      patchProject(project.id, patch);
+    },
+    [patchProject, project.id]
+  );
 
   const tab = validTab(searchParams.get("tab"));
   const setTab = useCallback(
@@ -145,6 +183,8 @@ export function ProjectWorkspace({ project: initial }: Props) {
   const [sections, setSections] = useState<ProposalSectionModel[]>(() => getProposalSectionTemplates(project));
   const [selectedId, setSelectedId] = useState("executive");
   const [chat, setChat] = useState<ProposalChatMessage[]>(() => getSampleChatForSection());
+  const [analysisChat, setAnalysisChat] = useState<ProposalChatMessage[]>(() => getSampleAnalysisChat());
+  const [analysisNotes, setAnalysisNotes] = useState("");
   const [rightOpen, setRightOpen] = useState(true);
   const [exportMarked, setExportMarked] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
@@ -214,6 +254,36 @@ export function ProjectWorkspace({ project: initial }: Props) {
     },
     [selected]
   );
+
+  const onSendAnalysisChat = useCallback(
+    (text: string) => {
+      const u: ProposalChatMessage = {
+        id: `a_${Date.now()}_u`,
+        role: "user",
+        content: text,
+        sectionId: "analysis",
+      };
+      setAnalysisChat((c) => [...c, u]);
+      const { content, suggestedRevision } = analysisMockReply(text, project);
+      setTimeout(() => {
+        setAnalysisChat((c) => [
+          ...c,
+          {
+            id: `a_${Date.now()}_a`,
+            role: "assistant",
+            content,
+            sectionId: "analysis",
+            suggestedRevision,
+          },
+        ]);
+      }, 500);
+    },
+    [project]
+  );
+
+  const appendAnalysisNote = useCallback((t: string) => {
+    setAnalysisNotes((prev) => (prev ? `${prev}\n\n${t}` : t));
+  }, []);
 
   const applyRevision = useCallback(
     (text: string) => {
@@ -344,6 +414,7 @@ export function ProjectWorkspace({ project: initial }: Props) {
                     </CardContent>
                   </Card>
                 </div>
+                <OpportunitySchedulePanel project={project} onUpdate={applyProjectPatch} />
                 <Card className="border-border/50 ring-1 ring-border/5">
                   <CardHeader>
                     <CardTitle className="text-base">Opportunity summary</CardTitle>
@@ -361,17 +432,6 @@ export function ProjectWorkspace({ project: initial }: Props) {
                     <div className="sm:col-span-2">
                       <p className="text-xs font-medium text-muted-foreground">Recommended next step</p>
                       <p className="mt-1 font-medium text-foreground">{project.nextAction}</p>
-                    </div>
-                    <div className="sm:col-span-2">
-                      <p className="text-xs font-medium text-muted-foreground">Key deadlines</p>
-                      <ul className="mt-1 list-inside list-disc text-muted-foreground">
-                        {project.keyDeadlines.map((d) => (
-                          <li key={d.label + d.date}>
-                            <span className="text-foreground">{d.label}:</span> {d.date}
-                            {d.note ? ` — ${d.note}` : ""}
-                          </li>
-                        ))}
-                      </ul>
                     </div>
                     <div className="sm:col-span-2">
                       <p className="text-xs font-medium text-muted-foreground">Open risks</p>
@@ -450,7 +510,24 @@ export function ProjectWorkspace({ project: initial }: Props) {
               </Card>
             )}
 
-            {tab === "rfp-analysis" && <AnalysisReport analysis={analysis} onBeginDrafting={beginDrafting} />}
+            {tab === "rfp-analysis" && (
+              <div className="space-y-6">
+                {analysisNotes ? (
+                  <Card className="border-border/50 ring-1 ring-border/5">
+                    <CardHeader className="py-3">
+                      <CardTitle className="text-sm">Session notes (copilot)</CardTitle>
+                      <CardDescription>Text you add from the analysis copilot. Not saved to the server in this preview.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                      <pre className="max-h-48 overflow-auto whitespace-pre-wrap rounded-md border border-border/50 bg-muted/20 p-3 text-sm leading-relaxed text-foreground">
+                        {analysisNotes}
+                      </pre>
+                    </CardContent>
+                  </Card>
+                ) : null}
+                <AnalysisReport analysis={analysis} onBeginDrafting={beginDrafting} />
+              </div>
+            )}
 
             {tab === "compliance" && (
               <Card className="border-border/50 ring-1 ring-border/5">
@@ -589,7 +666,7 @@ export function ProjectWorkspace({ project: initial }: Props) {
                   <FinalDocumentPreview
                     project={project}
                     sections={sections}
-                    onRegenerate={() => updateProject(project.id, { lastUpdated: new Date().toISOString() })}
+                    onRegenerate={() => patchProject(project.id, { lastUpdated: new Date().toISOString() })}
                     onExport={() => setTab("export")}
                   />
                 ) : (
@@ -609,7 +686,7 @@ export function ProjectWorkspace({ project: initial }: Props) {
                 fileNameHint={`HHS_Proposal_${project.name.replace(/\s+/g, "_")}_v1.docx (example)`}
                 onMarkSubmitted={() => {
                   setExportMarked(true);
-                  updateProject(project.id, { status: "submitted" });
+                  patchProject(project.id, { status: "submitted" });
                 }}
                 showSubmittedCta={allSectionsApproved || exportReady}
               />
@@ -639,28 +716,24 @@ export function ProjectWorkspace({ project: initial }: Props) {
                   onReject={() => setChat((c) => c.slice(0, -1))}
                 />
               ) : (
-                <Card className="border-border/50 ring-1 ring-border/5">
-                  <CardHeader>
-                    <CardTitle className="text-sm">Analysis checklist</CardTitle>
-                    <CardDescription>Suggested focus areas while you read the report.</CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-2 text-sm text-muted-foreground">
-                    {[
-                      "State the top three evaluation differentiators in one paragraph, tied to Section M language.",
-                      "List clarifying questions for the contracting officer before submission.",
-                    ].map((q) => (
-                      <div key={q} className="flex gap-2.5 rounded-md border border-border/50 bg-card/30 p-2.5">
-                        <Send className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
-                        {q}
-                      </div>
-                    ))}
-                    <p className="text-xs leading-relaxed">
-                      The full <strong className="font-medium text-foreground">Copilot</strong> is available in{" "}
-                      <strong className="font-medium text-foreground">Response draft</strong>, scoped to the section you
-                      select.
-                    </p>
-                  </CardContent>
-                </Card>
+                <AIChatPanel
+                  title="Analysis copilot"
+                  section={null}
+                  allowSendWithoutSection
+                  contextCaption="Ask about fit, risks, evaluation factors, and win strategy against this report. Output can be added to your session notes."
+                  messages={analysisChat}
+                  onSend={onSendAnalysisChat}
+                  applyButtonLabel="Add to session notes"
+                  noteButtonLabel="Add with separator"
+                  onApplyRevision={appendAnalysisNote}
+                  onInsertAsNote={(t) => appendAnalysisNote(`---\n${t}`)}
+                  onRegenerate={() => {
+                    onSendAnalysisChat("Give a shorter bullet summary of risks and mitigations I can use in a gate review.");
+                  }}
+                  onReject={() => setAnalysisChat((c) => c.slice(0, -1))}
+                  inputPlaceholder="Ask about this opportunity analysis…"
+                  promptExamples="Examples: “Top three win themes for Section M” · “Risks to track” · “Questions for the CO”"
+                />
               )}
             </aside>
           )}

@@ -10,6 +10,7 @@ import {
 } from "react";
 import { seedProjects } from "@/lib/mock/seed";
 import { normalizeProject } from "@/lib/mock/migrate";
+import { defaultMilestonesForNewProject } from "@/lib/schedule/milestones";
 import { inferFileKind, formatSize } from "@/lib/mock/file-utils";
 import type { Project, ProjectFile, ProjectStatus, FitRecommendation } from "@/lib/mock/types";
 
@@ -109,12 +110,13 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
 
     const name = input.name.trim() || `RFP response — ${new Date().toLocaleDateString()}`;
 
+    const dStr = due.toISOString().slice(0, 10);
     const row: Project = {
       id,
       name,
       rfpTitle: name,
       agency,
-      dueDate: due.toISOString().slice(0, 10),
+      dueDate: dStr,
       status: "drafting" as ProjectStatus,
       owner: "You",
       lastUpdated: now,
@@ -123,10 +125,15 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
       fitScore: fit,
       recommendation: rec,
       nextAction: "Review the opportunity analysis, complete the compliance matrix, then open the response draft with your team.",
-      keyDeadlines: [
-        { label: "Proposals due", date: due.toISOString().slice(0, 10) },
-        { label: "Q&A (typical window)", date: "See SAM.gov" },
-      ],
+      keyDeadlines: defaultMilestonesForNewProject(dStr),
+      agencyPortalUrl: "",
+      agencyPoc: {
+        name: "",
+        title: "",
+        email: "",
+        phone: "",
+        organization: "",
+      },
       openRisks: [
         "Post-upload: validate all attachments parsed without OCR gaps before final sign-off.",
         "Confirm key personnel availability against the PWS start date.",

@@ -1,4 +1,4 @@
-import type { FitRecommendation, Project, ProjectFile, ProjectFileStatus, ProjectStatus } from "./types";
+import type { AgencyPoc, FitRecommendation, KeyDeadline, Project, ProjectFile, ProjectFileStatus, ProjectStatus } from "./types";
 
 function mapFileStatus(s: string): ProjectFileStatus {
   switch (s) {
@@ -30,6 +30,36 @@ function mapStatus(s: string | undefined): ProjectStatus {
   return "drafting";
 }
 
+function normalizePoc(raw: unknown): AgencyPoc {
+  if (!raw || typeof raw !== "object") {
+    return { name: "", title: "", email: "", phone: "", organization: "" };
+  }
+  const o = raw as Record<string, unknown>;
+  return {
+    name: String(o.name ?? ""),
+    title: String(o.title ?? ""),
+    email: String(o.email ?? ""),
+    phone: String(o.phone ?? ""),
+    organization: String(o.organization ?? ""),
+  };
+}
+
+function normalizeKeyDeadlines(x: unknown): KeyDeadline[] {
+  if (!Array.isArray(x)) return [];
+  return x.map((row, i) => {
+    const r = row as Record<string, unknown>;
+    const id = typeof r.id === "string" && r.id ? r.id : `m_migrated_${i}`;
+    return {
+      id,
+      label: String(r.label ?? "Milestone"),
+      date: String(r.date ?? ""),
+      note: typeof r.note === "string" && r.note ? r.note : undefined,
+      source:
+        r.source === "solicitation" || r.source === "amendment" || r.source === "user" ? r.source : "solicitation",
+    };
+  });
+}
+
 export function normalizeProject(input: unknown): Project {
   const p = input as Record<string, unknown> & { files: ProjectFile[]; name: string };
   const files = (p.files ?? []).map((f) => {
@@ -54,7 +84,9 @@ export function normalizeProject(input: unknown): Project {
     fitScore: typeof p.fitScore === "number" ? p.fitScore : 70,
     recommendation: mapFit(p.recommendation as string | undefined),
     nextAction: String(p.nextAction ?? "Review the RFP analysis and start drafting."),
-    keyDeadlines: Array.isArray(p.keyDeadlines) ? (p.keyDeadlines as Project["keyDeadlines"]) : [],
+    keyDeadlines: normalizeKeyDeadlines(p.keyDeadlines),
+    agencyPortalUrl: typeof p.agencyPortalUrl === "string" ? p.agencyPortalUrl : "",
+    agencyPoc: normalizePoc(p.agencyPoc),
     openRisks: Array.isArray(p.openRisks) ? (p.openRisks as string[]) : [],
     files,
   };

@@ -12,34 +12,51 @@ import { cn } from "@/lib/utils";
 type Props = {
   title?: string;
   section: ProposalSectionModel | null;
+  /** Shown under the title when set; overrides the default “Active section” line. */
+  contextCaption?: string;
+  /** Allow send when no draft section is selected (e.g. opportunity analysis tab). */
+  allowSendWithoutSection?: boolean;
+  applyButtonLabel?: string;
+  noteButtonLabel?: string;
   messages: ProposalChatMessage[];
   onSend: (text: string) => void;
   onApplyRevision: (text: string) => void;
   onInsertAsNote: (text: string) => void;
   onRegenerate: () => void;
   onReject: () => void;
+  inputPlaceholder?: string;
+  promptExamples?: string;
   className?: string;
 };
 
 export function AIChatPanel({
   title = "Proposal copilot",
   section,
+  contextCaption,
+  allowSendWithoutSection = false,
+  applyButtonLabel = "Apply to draft",
+  noteButtonLabel = "Add to notes",
   messages,
   onSend,
   onApplyRevision,
   onInsertAsNote,
   onRegenerate,
   onReject,
+  inputPlaceholder = "Instruct the copilot about this section…",
+  promptExamples = 'Examples: “Align to Section M factors” · “Tighten executive tone” · “Add 508 language”',
   className,
 }: Props) {
   const [text, setText] = useState("");
 
+  const canSend = allowSendWithoutSection || !!section;
   const lastAssistant = [...messages].reverse().find((m) => m.role === "assistant" && m.suggestedRevision);
   return (
     <Card className={cn("flex h-full min-h-0 flex-col border-border/60", className)}>
       <CardHeader className="shrink-0 border-b border-border/50 py-3">
         <CardTitle className="text-sm font-semibold">{title}</CardTitle>
-        {section ? (
+        {contextCaption ? (
+          <p className="text-xs leading-relaxed text-muted-foreground">{contextCaption}</p>
+        ) : section ? (
           <p className="text-xs text-muted-foreground">Active section: {section.title}</p>
         ) : (
           <p className="text-xs text-muted-foreground">Select a section in the list to begin.</p>
@@ -68,7 +85,7 @@ export function AIChatPanel({
                         className="h-7 text-xs"
                         onClick={() => m.suggestedRevision && onApplyRevision(m.suggestedRevision)}
                       >
-                        Apply to draft
+                        {applyButtonLabel}
                       </Button>
                       <Button
                         type="button"
@@ -77,7 +94,7 @@ export function AIChatPanel({
                         className="h-7 text-xs"
                         onClick={() => m.suggestedRevision && onInsertAsNote(m.suggestedRevision)}
                       >
-                        Add to notes
+                        {noteButtonLabel}
                       </Button>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
@@ -100,19 +117,17 @@ export function AIChatPanel({
           </div>
         )}
         <div className="mt-auto space-y-2 border-t border-border/50 p-2">
-          <p className="px-1 text-[10px] leading-relaxed text-muted-foreground">
-            Examples: “Align to Section M factors” · “Tighten executive tone” · “Add 508 language”
-          </p>
+          <p className="px-1 text-[10px] leading-relaxed text-muted-foreground">{promptExamples}</p>
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Instruct the copilot about this section…"
+            placeholder={inputPlaceholder}
             className="min-h-[72px] text-sm"
-            disabled={!section}
+            disabled={!canSend}
             onKeyDown={(e) => {
               if (e.key === "Enter" && !e.shiftKey) {
                 e.preventDefault();
-                if (text.trim() && section) {
+                if (text.trim() && canSend) {
                   onSend(text.trim());
                   setText("");
                 }
@@ -123,7 +138,7 @@ export function AIChatPanel({
             type="button"
             className="w-full gap-1.5"
             size="sm"
-            disabled={!text.trim() || !section}
+            disabled={!text.trim() || !canSend}
             onClick={() => {
               onSend(text.trim());
               setText("");

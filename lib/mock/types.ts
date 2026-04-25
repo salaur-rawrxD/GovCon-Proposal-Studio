@@ -22,6 +22,26 @@ export type ProjectStatus =
 
 export type FitRecommendation = "go" | "no_go" | "go_with_conditions";
 
+export type ScheduleMilestoneSource = "solicitation" | "amendment" | "user";
+
+export type KeyDeadline = {
+  id: string;
+  label: string;
+  /** ISO date (YYYY-MM-DD) or free text such as `TBD (see agency portal)` */
+  date: string;
+  note?: string;
+  source: ScheduleMilestoneSource;
+};
+
+export type AgencyPoc = {
+  name: string;
+  title: string;
+  email: string;
+  phone: string;
+  /** e.g. contracting office or program office */
+  organization: string;
+};
+
 export type Project = {
   id: string;
   name: string;
@@ -37,7 +57,11 @@ export type Project = {
   fitScore: number;
   recommendation: FitRecommendation;
   nextAction: string;
-  keyDeadlines: { label: string; date: string; note?: string }[];
+  keyDeadlines: KeyDeadline[];
+  /** Agency opportunity / submission portal (SAM.gov, agency e-offer, etc.) */
+  agencyPortalUrl: string;
+  /** Government point of contact as stated in Section L or the cover letter */
+  agencyPoc: AgencyPoc;
   openRisks: string[];
   files: ProjectFile[];
 };
@@ -93,6 +117,9 @@ export type RfpSnapshot = {
   agency: string;
   projectName: string;
   keyDeadlines: { label: string; date: string }[];
+  /** Primary link for amendments, Q&A, and instructions */
+  solicitationUrl: string;
+  agencyContact: AgencyPoc;
   submissionMethod: string;
   contractType: string;
   evaluationSummary: string;

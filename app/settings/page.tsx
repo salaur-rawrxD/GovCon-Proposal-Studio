@@ -1,48 +1,55 @@
+import Link from "next/link";
+import { Building2, ChevronRight, PlugZap } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageContainer } from "@/components/shell/PageContainer";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export default function SettingsPage() {
   return (
-    <PageContainer className="max-w-2xl">
-      <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">Settings</h1>
-      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-        Organization profile, connections, and environment. Values below are not persisted in this preview.
-      </p>
+    <>
+      <h2 className="text-lg font-semibold tracking-tight">Overview</h2>
+      <p className="mt-1 text-sm text-muted-foreground">Choose a section to configure.</p>
 
-      <Card className="mt-8 border-border/50 ring-1 ring-border/5">
-        <CardHeader>
-          <CardTitle className="text-base">Organization</CardTitle>
-          <CardDescription>Identity data surfaced on coversheets and in knowledge-base exports when enabled.</CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="space-y-1.5">
-            <Label htmlFor="cname">Legal name</Label>
-            <Input id="cname" placeholder="Example Federal Services LLC" disabled />
-          </div>
-          <div className="space-y-1.5">
-            <Label htmlFor="uei">UEI / SAM</Label>
-            <Input id="uei" placeholder="—" disabled />
-          </div>
-        </CardContent>
-      </Card>
+      <div className="mt-6 space-y-4">
+        <Link
+          href="/settings/company"
+          className={cn(
+            buttonVariants({ variant: "outline" }),
+            "h-auto w-full justify-between gap-3 border-border/50 py-4 text-left font-normal"
+          )}
+        >
+          <span className="flex min-w-0 items-start gap-3">
+            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <Building2 className="h-4 w-4" aria-hidden />
+            </span>
+            <span className="min-w-0">
+              <span className="block text-sm font-medium text-foreground">Company</span>
+              <span className="mt-0.5 block text-xs leading-relaxed text-muted-foreground">
+                EIN, UEI, addresses, W-9, insurance COIs, notary templates, and export branding
+              </span>
+            </span>
+          </span>
+          <ChevronRight className="h-4 w-4 shrink-0 text-muted-foreground" aria-hidden />
+        </Link>
+      </div>
 
-      <Separator className="my-6" />
+      <Separator className="my-8" />
 
-      <Card>
+      <Card className="border-border/50 ring-1 ring-border/5">
         <CardHeader>
           <CardTitle className="text-base">Integrations</CardTitle>
           <CardDescription>Connect Supabase, document export, and AI models in a future release.</CardDescription>
         </CardHeader>
-        <CardContent>
-          <Button type="button" disabled variant="secondary">
+        <CardContent className="flex items-center gap-3">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-muted/60 text-muted-foreground">
+            <PlugZap className="h-4 w-4" aria-hidden />
+          </span>
+          <Button type="button" disabled variant="secondary" size="sm">
             Configure (coming soon)
           </Button>
         </CardContent>
       </Card>
-    </PageContainer>
+    </>
   );
 }

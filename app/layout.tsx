@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { TopBar } from "@/components/shell/TopBar";
+import { CompanyProfileProvider } from "@/contexts/CompanyProfileContext";
 import { ProjectDataProvider } from "@/contexts/ProjectDataContext";
 import "./globals.css";
 
@@ -31,8 +32,10 @@ export default function RootLayout({
     >
       <body className="min-h-dvh flex flex-col">
         <ProjectDataProvider>
-          <TopBar />
-          {children}
+          <CompanyProfileProvider>
+            <TopBar />
+            {children}
+          </CompanyProfileProvider>
         </ProjectDataProvider>
       </body>
     </html>

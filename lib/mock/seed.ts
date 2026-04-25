@@ -16,9 +16,37 @@ export const seedProjects: Project[] = [
     recommendation: "go",
     nextAction: "Review Fit Assessment, then start Technical Approach and Section M mapping.",
     keyDeadlines: [
-      { label: "White paper (if requested)", date: "2026-04-30", note: "Optional—confirm in FBO" },
-      { label: "Oral / demo window", date: "2026-05-18", note: "Tentative" },
+      {
+        id: "m_0",
+        label: "Pre-proposal / industry day",
+        date: "2026-04-18",
+        note: "If announced",
+        source: "solicitation",
+      },
+      {
+        id: "m_1",
+        label: "Questions (Q&A) close",
+        date: "2026-04-22",
+        source: "solicitation",
+      },
+      {
+        id: "m_2",
+        label: "White paper (if requested)",
+        date: "2026-04-30",
+        note: "Optional—confirm in FBO",
+        source: "solicitation",
+      },
+      { id: "m_3", label: "Proposals due", date: "2026-05-12", source: "solicitation" },
+      { id: "m_4", label: "Oral / demo window", date: "2026-05-18", note: "Tentative", source: "amendment" },
     ],
+    agencyPortalUrl: "https://sam.gov/opp/placeholder-hhs-26-0007",
+    agencyPoc: {
+      name: "L. Morrow",
+      title: "Contract Specialist, OS DBU",
+      email: "hhs.fbo.contracting@example.gov",
+      phone: "(000) 000-0000",
+      organization: "HHS, Office of Grants & Acquisition",
+    },
     openRisks: [
       "CLIN 3 labor hours may be light for 90-day hardening window.",
       "Subcontractor LOI not yet countersigned for DevSecOps partner.",
@@ -59,9 +87,24 @@ export const seedProjects: Project[] = [
     recommendation: "go_with_conditions",
     nextAction: "Start Draft Response: Technical Approach and Zero Trust call-outs to Section 3.2.4.",
     keyDeadlines: [
-      { label: "Q&A close", date: "2026-04-15", note: "Passed—monitor amendments" },
-      { label: "Final proposal due", date: "2026-05-28" },
+      { id: "dhs_m0", label: "Industry day (virtual)", date: "2026-04-10", source: "solicitation" },
+      {
+        id: "dhs_m1",
+        label: "Q&A close",
+        date: "2026-04-15",
+        note: "Original—verif. amendments",
+        source: "solicitation",
+      },
+      { id: "dhs_m2", label: "Final proposal due", date: "2026-05-28", source: "solicitation" },
     ],
+    agencyPortalUrl: "https://www.dhs.gov/procurement",
+    agencyPoc: {
+      name: "See Section L.4",
+      title: "Contracting officer representative (COR) named at award",
+      email: "cisa.industry@example.gov",
+      phone: "",
+      organization: "CISA Office of Procurement Operations",
+    },
     openRisks: [
       "CMMC L2 attestation path needs artifacts not yet in knowledge base.",
       "Past performance reference set leans DOD—strengthen civil agency refs.",
@@ -93,9 +136,17 @@ export const seedProjects: Project[] = [
     recommendation: "go",
     nextAction: "Run Review & Approval, then generate Final Document and export package.",
     keyDeadlines: [
-      { label: "Oral presentation", date: "2026-06-10", note: "If down-selected" },
-      { label: "Written proposal due", date: "2026-06-02" },
+      { id: "va_m0", label: "Oral presentation", date: "2026-06-10", note: "If down-selected", source: "solicitation" },
+      { id: "va_m1", label: "Written proposal due", date: "2026-06-02", source: "solicitation" },
     ],
+    agencyPortalUrl: "https://www.va.gov/osdbu/contracting",
+    agencyPoc: {
+      name: "Proposals: Contracting as listed in Section L",
+      title: "VA VHA / OI&T acquisition",
+      email: "",
+      phone: "",
+      organization: "Department of Veterans Affairs",
+    },
     openRisks: [
       "Minor: ensure accessibility statement references VA Section 508 test evidence.",
     ],
@@ -135,9 +186,17 @@ export const seedProjects: Project[] = [
     recommendation: "go_with_conditions",
     nextAction: "Complete RFP analysis review; strengthen agile metrics vs. 18F playbook expectations.",
     keyDeadlines: [
-      { label: "Amendment 2 (expected)", date: "2026-04-25" },
-      { label: "Proposal due", date: "2026-05-19" },
+      { id: "gsa_m0", label: "Amendment 2 (expected)", date: "2026-04-25", source: "solicitation" },
+      { id: "gsa_m1", label: "Proposal due", date: "2026-05-19", source: "solicitation" },
     ],
+    agencyPortalUrl: "https://www.gsa.gov/technology/technology-purchasing-programs",
+    agencyPoc: {
+      name: "GSA eOffer / TTS (see RFP cover)",
+      title: "Procurement",
+      email: "tts.opportunities@gsa.example.gov",
+      phone: "",
+      organization: "GSA Technology Transformation Services",
+    },
     openRisks: [
       "NIST 800-63-3 IAL2 evidence pack incomplete for in-person vs. remote paths.",
     ],
@@ -167,7 +226,17 @@ export const seedProjects: Project[] = [
     fitScore: 55,
     recommendation: "no_go",
     nextAction: "No-bid decision recorded. Reference for pipeline reporting only.",
-    keyDeadlines: [{ label: "Due (passed)", date: "2026-02-10" }],
+    keyDeadlines: [
+      { id: "doe_m0", label: "Proposals / bids due (passed)", date: "2026-02-10", source: "solicitation" },
+    ],
+    agencyPortalUrl: "",
+    agencyPoc: {
+      name: "",
+      title: "",
+      email: "",
+      phone: "",
+      organization: "",
+    },
     openRisks: [],
     files: [
       {
