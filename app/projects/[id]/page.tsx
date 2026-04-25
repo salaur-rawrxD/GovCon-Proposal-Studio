@@ -1,13 +1,14 @@
 "use client";
 
 import Link from "next/link";
+import { Suspense } from "react";
 import { useParams } from "next/navigation";
 import { PageContainer } from "@/components/shell/PageContainer";
 import { ProjectWorkspace } from "@/components/projects/ProjectWorkspace";
 import { useProjectData } from "@/contexts/ProjectDataContext";
 import { buttonVariants } from "@/components/ui/button";
 
-export default function ProjectByIdPage() {
+function ProjectById() {
   const params = useParams();
   const id = typeof params.id === "string" ? params.id : "";
   const { getProject } = useProjectData();
@@ -33,8 +34,22 @@ export default function ProjectByIdPage() {
   }
 
   return (
-    <PageContainer className="max-w-6xl">
-      <ProjectWorkspace project={project} />
+    <PageContainer className="max-w-[1600px] px-0">
+      <ProjectWorkspace key={project.id} project={project} />
     </PageContainer>
+  );
+}
+
+export default function ProjectByIdPage() {
+  return (
+    <Suspense
+      fallback={
+        <PageContainer>
+          <p className="text-sm text-muted-foreground">Loading workspace…</p>
+        </PageContainer>
+      }
+    >
+      <ProjectById />
+    </Suspense>
   );
 }

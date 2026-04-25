@@ -2,17 +2,18 @@
 
 import { useRouter } from "next/navigation";
 import { useCallback, useRef, useState } from "react";
-import { FileUp, Loader2 } from "lucide-react";
+import { Loader2, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { PageContainer } from "@/components/shell/PageContainer";
-import { FileTypeIcon } from "@/components/files/FileTypeIcon";
+import { FileUploadDropzone } from "@/components/app/FileUploadDropzone";
+import { FileListStaged } from "@/components/app/FileList";
 import { useProjectData } from "@/contexts/ProjectDataContext";
-import { acceptUpload, inferFileKind, formatSize } from "@/lib/mock/file-utils";
-import type { FileKind } from "@/lib/mock/types";
+import { acceptUpload } from "@/lib/mock/file-utils";
 import { cn } from "@/lib/utils";
+import { Progress } from "@/components/ui/progress";
 
 type Staged = {
   id: string;
@@ -20,12 +21,22 @@ type Staged = {
   status: "uploading" | "ready";
 };
 
+const STEPS = [
+  "Uploading files",
+  "Reading documents",
+  "Extracting requirements",
+  "Building fit assessment",
+] as const;
+
 export default function StartNewResponsePage() {
   const router = useRouter();
   const { createProject } = useProjectData();
   const [name, setName] = useState("");
+  const [agency, setAgency] = useState("");
+  const [dueDate, setDueDate] = useState("");
   const [staged, setStaged] = useState<Staged[]>([]);
-  const [creating, setCreating] = useState(false);
+  const [stepIndex, setStepIndex] = useState(0);
+  const [progressOpen, setProgressOpen] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const addFiles = useCallback((list: FileList | null) => {
@@ -48,134 +59,152 @@ export default function StartNewResponsePage() {
   const remove = (id: string) => setStaged((s) => s.filter((x) => x.id !== id));
 
   const canCreate = staged.length > 0 && staged.every((s) => s.status === "ready");
+  const [creating, setCreating] = useState(false);
+
+  const runAnalysis = (projectId: string) => {
+    setProgressOpen(true);
+    setStepIndex(0);
+    const stepMs = 800;
+    STEPS.forEach((_, i) => {
+      setTimeout(() => setStepIndex(i), i * stepMs);
+    });
+    setTimeout(() => {
+      setProgressOpen(false);
+      setCreating(false);
+      router.push(`/projects/${projectId}?tab=rfp-analysis`);
+    }, STEPS.length * stepMs + 400);
+  };
 
   return (
-    <PageContainer className="max-w-2xl">
+    <PageContainer className="max-w-3xl">
       <div className="mb-8">
         <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Start New Response</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Create a dedicated project workspace for one RFP. Add your solicitation files first—everything else lives
-          inside the project.
+          Create a project from your solicitation, then we’ll open the analysis and response workspace in one place.
         </p>
       </div>
 
-      <Card className="border-border/60 shadow-sm">
-        <CardHeader>
-          <CardTitle className="text-lg">Project name (optional)</CardTitle>
-          <CardDescription>Defaults to a dated label if you leave this blank.</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Label htmlFor="pn" className="sr-only">
-            Project name
-          </Label>
-          <Input
-            id="pn"
-            placeholder="e.g. HHS Cloud DevSecOps BPA"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            className="max-w-md"
-          />
-        </CardContent>
-      </Card>
+      <FileUploadDropzone
+        onPickFiles={addFiles}
+        id="start-upload"
+        title="Drop your RFP documents here"
+        subtitle="Accepted: PDF, Word, CSV, Excel"
+      />
 
-      <Card className="mt-6 border-border/60 shadow-sm">
+      {staged.length === 0 ? (
+        <div className="mt-4 rounded-lg border border-dashed border-border/60 bg-muted/10 py-8 text-center text-sm text-muted-foreground">
+          Drop your RFP documents here. We’ll create a project, analyze the opportunity, and prepare a structured
+          response workspace.
+        </div>
+      ) : (
+        <div className="mt-4">
+          <p className="mb-2 text-xs font-medium uppercase text-muted-foreground">Queued files</p>
+          <FileListStaged
+            items={staged.map((s) => ({
+              id: s.id,
+              name: s.file.name,
+              size: s.file.size,
+              status: s.status,
+            }))}
+            onRemove={remove}
+          />
+        </div>
+      )}
+
+      <Card className="mt-8 border-border/60 shadow-sm">
         <CardHeader>
-          <CardTitle className="text-lg">RFP files</CardTitle>
-          <CardDescription>
-            Accepted: PDF, Word (.doc, .docx), CSV, Excel (.xls, .xlsx). Uploading is simulated in this preview.
-          </CardDescription>
+          <CardTitle className="text-lg">Project details (optional)</CardTitle>
+          <CardDescription>These fields can be set now or edited later in the project workspace.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          <input
-            ref={inputRef}
-            type="file"
-            multiple
-            accept={acceptUpload}
-            className="sr-only"
-            onChange={(e) => addFiles(e.target.files)}
-          />
-          <button
-            type="button"
-            onClick={() => inputRef.current?.click()}
-            onDragOver={(e) => {
-              e.preventDefault();
-            }}
-            onDrop={(e) => {
-              e.preventDefault();
-              addFiles(e.dataTransfer.files);
-            }}
-            className={cn(
-              "flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed border-border/80 bg-muted/20 py-14 text-center transition",
-              "hover:border-primary/25 hover:bg-muted/30"
-            )}
-          >
-            <FileUp className="h-8 w-8 text-muted-foreground" />
-            <span className="text-sm font-medium text-foreground">Drop files here or click to browse</span>
-            <span className="text-xs text-muted-foreground">PDF · Word · CSV · Excel</span>
-          </button>
-
-          {staged.length === 0 ? (
-            <div className="rounded-lg border border-dashed border-border/60 bg-muted/10 py-6 text-center text-sm text-muted-foreground">
-              No files yet. Your project will be created once you add at least one RFP document.
-            </div>
-          ) : (
-            <ul className="space-y-2" aria-live="polite">
-              {staged.map((s) => {
-                const kind: FileKind = inferFileKind(s.file.name);
-                return (
-                  <li
-                    key={s.id}
-                    className="flex items-center justify-between gap-3 rounded-lg border border-border/50 bg-card px-3 py-2"
-                  >
-                    <div className="flex min-w-0 items-center gap-2">
-                      <FileTypeIcon kind={kind} />
-                      <div className="min-w-0">
-                        <p className="truncate text-sm font-medium text-foreground">{s.file.name}</p>
-                        <p className="text-xs text-muted-foreground">{formatSize(s.file.size)}</p>
-                      </div>
-                    </div>
-                    <div className="flex shrink-0 items-center gap-2">
-                      {s.status === "uploading" ? (
-                        <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                          <Loader2 className="h-3.5 w-3.5 animate-spin" />
-                          Uploading…
-                        </span>
-                      ) : (
-                        <span className="text-xs font-medium text-emerald-600">Ready</span>
-                      )}
-                      <button
-                        type="button"
-                        className="text-xs text-muted-foreground underline-offset-2 hover:text-foreground hover:underline"
-                        onClick={() => remove(s.id)}
-                      >
-                        Remove
-                      </button>
-                    </div>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
+          <div>
+            <Label htmlFor="pn">Project / opportunity name</Label>
+            <Input
+              id="pn"
+              placeholder="e.g. HHS Cloud DevSecOps BPA"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="mt-1 max-w-lg"
+            />
+          </div>
+          <div>
+            <Label htmlFor="ag">Agency or client</Label>
+            <Input
+              id="ag"
+              placeholder="e.g. Department of Health and Human Services"
+              value={agency}
+              onChange={(e) => setAgency(e.target.value)}
+              className="mt-1 max-w-lg"
+            />
+          </div>
+          <div>
+            <Label htmlFor="dd">Due date</Label>
+            <Input
+              id="dd"
+              type="date"
+              value={dueDate}
+              onChange={(e) => setDueDate(e.target.value)}
+              className="mt-1 max-w-xs"
+            />
+          </div>
         </CardContent>
       </Card>
 
+      {progressOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
+          <Card className="w-full max-w-md border-border/60 shadow-lg">
+            <CardHeader>
+              <CardTitle className="text-base">Preparing your workspace</CardTitle>
+              <CardDescription>Simulated steps — in production, your RFP is parsed in the background.</CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <Progress value={((stepIndex + 1) / STEPS.length) * 100} className="h-2" />
+              <ol className="space-y-2 text-sm">
+                {STEPS.map((s, i) => (
+                  <li
+                    key={s}
+                    className={cn(
+                      "flex items-center gap-2 rounded-md border px-2 py-1.5",
+                      i < stepIndex && "border-emerald-500/30 bg-emerald-500/5",
+                      i === stepIndex && "border-primary/40 bg-primary/5"
+                    )}
+                  >
+                    {i < stepIndex ? (
+                      <Check className="h-4 w-4 text-emerald-600" />
+                    ) : i === stepIndex ? (
+                      <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                    ) : (
+                      <span className="h-4 w-4 rounded-full border border-border" />
+                    )}
+                    {s}
+                  </li>
+                ))}
+              </ol>
+            </CardContent>
+          </Card>
+        </div>
+      )}
+
       <div className="mt-8 flex flex-wrap items-center gap-3">
+        <input ref={inputRef} type="file" multiple accept={acceptUpload} className="sr-only" onChange={(e) => addFiles(e.target.files)} />
         <Button
           size="lg"
-          disabled={!canCreate || creating}
+          disabled={!canCreate || creating || progressOpen}
           onClick={() => {
             if (!canCreate) return;
             setCreating(true);
             const id = createProject({
               name: name.trim(),
+              agency: agency.trim() || undefined,
+              dueDate: dueDate.trim() || undefined,
               files: staged.map((s) => s.file),
             });
-            router.push(`/projects/${id}`);
+            runAnalysis(id);
           }}
         >
-          {creating ? "Creating…" : "Create project"}
+          {progressOpen || creating ? "Working…" : "Create Project & Analyze RFP"}
         </Button>
-        <p className="text-sm text-muted-foreground">Opens your new project workspace.</p>
+        <p className="text-sm text-muted-foreground">Opens the project on the RFP analysis tab when processing completes.</p>
       </div>
     </PageContainer>
   );

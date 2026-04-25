@@ -1,0 +1,73 @@
+import { CheckCircle2, Circle, AlertTriangle } from "lucide-react";
+import { Progress } from "@/components/ui/progress";
+import { cn } from "@/lib/utils";
+import type { ProjectReviewItem } from "@/lib/mock/types";
+
+type Props = {
+  items: ProjectReviewItem[];
+  approvedSectionCount: number;
+  totalSections: number;
+  warning: string | null;
+  allApproved: boolean;
+  onGenerateFinal: () => void;
+  className?: string;
+};
+
+export function ApprovalChecklist({
+  items,
+  approvedSectionCount,
+  totalSections,
+  warning,
+  allApproved,
+  onGenerateFinal,
+  className,
+}: Props) {
+  const done = items.filter((i) => i.done).length;
+  const progress = items.length ? Math.round((done / items.length) * 100) : 0;
+  return (
+    <div className={cn("space-y-4", className)}>
+      <div>
+        <div className="mb-1.5 flex justify-between text-sm">
+          <span className="font-medium">Approval progress</span>
+          <span className="text-muted-foreground">
+            {done} / {items.length}
+          </span>
+        </div>
+        <Progress value={progress} className="h-2" />
+        <p className="mt-1 text-xs text-muted-foreground">
+          Sections approved: {approvedSectionCount} / {totalSections}
+        </p>
+      </div>
+      <ul className="space-y-2">
+        {items.map((i) => (
+          <li key={i.id} className="flex items-start gap-2 rounded-lg border border-border/50 px-3 py-2 text-sm">
+            {i.done ? (
+              <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-emerald-600" />
+            ) : (
+              <Circle className="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" />
+            )}
+            <span className={cn(i.done && "text-muted-foreground line-through")}>{i.label}</span>
+          </li>
+        ))}
+      </ul>
+      {warning ? (
+        <div className="flex gap-2 rounded-lg border border-amber-500/30 bg-amber-500/5 p-3 text-sm text-amber-950 dark:text-amber-100">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          <p>{warning}</p>
+        </div>
+      ) : null}
+      {allApproved ? (
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-primary/30 bg-primary/5 p-4">
+          <p className="text-sm font-medium">All checklist items and sections are ready for assembly.</p>
+          <button
+            type="button"
+            onClick={onGenerateFinal}
+            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:opacity-95"
+          >
+            Generate final proposal document
+          </button>
+        </div>
+      ) : null}
+    </div>
+  );
+}
