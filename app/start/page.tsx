@@ -22,10 +22,10 @@ type Staged = {
 };
 
 const STEPS = [
-  "Uploading files",
-  "Reading documents",
+  "Ingesting documents",
+  "Structuring content",
   "Extracting requirements",
-  "Building fit assessment",
+  "Scoring opportunity fit",
 ] as const;
 
 export default function StartNewResponsePage() {
@@ -77,28 +77,29 @@ export default function StartNewResponsePage() {
 
   return (
     <PageContainer className="max-w-3xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Start New Response</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Create a project from your solicitation, then we’ll open the analysis and response workspace in one place.
+      <div className="mb-10 max-w-2xl">
+        <h1 className="text-balance text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">New response</h1>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          Upload the solicitation and attachments. A dedicated project workspace is created, documents are ingested, and
+          the opportunity analysis opens next so your team can align on fit before drafting.
         </p>
       </div>
 
       <FileUploadDropzone
         onPickFiles={addFiles}
         id="start-upload"
-        title="Drop your RFP documents here"
-        subtitle="Accepted: PDF, Word, CSV, Excel"
+        title="Upload solicitation files"
+        subtitle="PDF, Word, CSV, or Excel"
       />
 
       {staged.length === 0 ? (
-        <div className="mt-4 rounded-lg border border-dashed border-border/60 bg-muted/10 py-8 text-center text-sm text-muted-foreground">
-          Drop your RFP documents here. We’ll create a project, analyze the opportunity, and prepare a structured
-          response workspace.
+        <div className="mt-4 rounded-lg border border-dashed border-border/50 bg-muted/20 py-10 text-center text-sm leading-relaxed text-muted-foreground">
+          Drag and drop at least one solicitation file, or use the area above. Supported formats: PDF, Word, CSV, and
+          Excel.
         </div>
       ) : (
         <div className="mt-4">
-          <p className="mb-2 text-xs font-medium uppercase text-muted-foreground">Queued files</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Files in queue</p>
           <FileListStaged
             items={staged.map((s) => ({
               id: s.id,
@@ -111,14 +112,14 @@ export default function StartNewResponsePage() {
         </div>
       )}
 
-      <Card className="mt-8 border-border/60 shadow-sm">
+      <Card className="mt-10 border-border/50 bg-card/50 shadow-sm ring-1 ring-border/5">
         <CardHeader>
-          <CardTitle className="text-lg">Project details (optional)</CardTitle>
-          <CardDescription>These fields can be set now or edited later in the project workspace.</CardDescription>
+          <CardTitle className="text-lg">Opportunity record (optional)</CardTitle>
+          <CardDescription>Add metadata now, or update it from the project workspace at any time.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="pn">Project / opportunity name</Label>
+            <Label htmlFor="pn">Opportunity or project name</Label>
             <Input
               id="pn"
               placeholder="e.g. HHS Cloud DevSecOps BPA"
@@ -128,7 +129,7 @@ export default function StartNewResponsePage() {
             />
           </div>
           <div>
-            <Label htmlFor="ag">Agency or client</Label>
+            <Label htmlFor="ag">Agency or customer</Label>
             <Input
               id="ag"
               placeholder="e.g. Department of Health and Human Services"
@@ -138,7 +139,7 @@ export default function StartNewResponsePage() {
             />
           </div>
           <div>
-            <Label htmlFor="dd">Due date</Label>
+            <Label htmlFor="dd">Response due date</Label>
             <Input
               id="dd"
               type="date"
@@ -151,22 +152,25 @@ export default function StartNewResponsePage() {
       </Card>
 
       {progressOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/80 p-4 backdrop-blur-sm">
-          <Card className="w-full max-w-md border-border/60 shadow-lg">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-background/85 p-4 backdrop-blur-md">
+          <Card className="w-full max-w-md border-border/50 shadow-2xl ring-1 ring-border/10">
             <CardHeader>
               <CardTitle className="text-base">Preparing your workspace</CardTitle>
-              <CardDescription>Simulated steps — in production, your RFP is parsed in the background.</CardDescription>
+              <CardDescription>
+                Demonstration flow. In production, ingestion and analysis run asynchronously with status in the
+                workspace.
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Progress value={((stepIndex + 1) / STEPS.length) * 100} className="h-2" />
-              <ol className="space-y-2 text-sm">
+              <Progress value={((stepIndex + 1) / STEPS.length) * 100} className="h-1.5" />
+              <ol className="space-y-2 text-sm text-foreground/90">
                 {STEPS.map((s, i) => (
                   <li
                     key={s}
                     className={cn(
-                      "flex items-center gap-2 rounded-md border px-2 py-1.5",
-                      i < stepIndex && "border-emerald-500/30 bg-emerald-500/5",
-                      i === stepIndex && "border-primary/40 bg-primary/5"
+                      "flex items-center gap-2.5 rounded-md border px-3 py-2",
+                      i < stepIndex && "border-emerald-500/25 bg-emerald-500/[0.06]",
+                      i === stepIndex && "border-primary/30 bg-primary/[0.06]"
                     )}
                   >
                     {i < stepIndex ? (
@@ -202,9 +206,12 @@ export default function StartNewResponsePage() {
             runAnalysis(id);
           }}
         >
-          {progressOpen || creating ? "Working…" : "Create Project & Analyze RFP"}
+          {progressOpen || creating ? "Processing…" : "Create project and run analysis"}
         </Button>
-        <p className="text-sm text-muted-foreground">Opens the project on the RFP analysis tab when processing completes.</p>
+        <p className="max-w-md text-sm leading-relaxed text-muted-foreground">
+          When this completes, you will be taken to the <strong className="font-medium text-foreground">Analysis</strong>{" "}
+          section of the new project.
+        </p>
       </div>
     </PageContainer>
   );

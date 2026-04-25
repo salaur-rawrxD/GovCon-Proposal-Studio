@@ -1,5 +1,6 @@
 import { CheckCircle2, Circle, AlertTriangle } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ProjectReviewItem } from "@/lib/mock/types";
 
@@ -28,14 +29,14 @@ export function ApprovalChecklist({
     <div className={cn("space-y-4", className)}>
       <div>
         <div className="mb-1.5 flex justify-between text-sm">
-          <span className="font-medium">Approval progress</span>
-          <span className="text-muted-foreground">
+          <span className="font-medium">Gates complete</span>
+          <span className="tabular-nums text-muted-foreground">
             {done} / {items.length}
           </span>
         </div>
-        <Progress value={progress} className="h-2" />
-        <p className="mt-1 text-xs text-muted-foreground">
-          Sections approved: {approvedSectionCount} / {totalSections}
+        <Progress value={progress} className="h-1.5" />
+        <p className="mt-1.5 text-xs text-muted-foreground">
+          Volumes approved: {approvedSectionCount} / {totalSections}
         </p>
       </div>
       <ul className="space-y-2">
@@ -57,15 +58,11 @@ export function ApprovalChecklist({
         </div>
       ) : null}
       {allApproved ? (
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-primary/30 bg-primary/5 p-4">
-          <p className="text-sm font-medium">All checklist items and sections are ready for assembly.</p>
-          <button
-            type="button"
-            onClick={onGenerateFinal}
-            className="rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground shadow hover:opacity-95"
-          >
-            Generate final proposal document
-          </button>
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between rounded-xl border border-primary/25 bg-primary/[0.06] p-4 ring-1 ring-primary/10">
+          <p className="text-sm text-muted-foreground">All required approvals are in place. You may assemble the final response package.</p>
+          <Button type="button" onClick={onGenerateFinal} className="shrink-0">
+            Build final response
+          </Button>
         </div>
       ) : null}
     </div>

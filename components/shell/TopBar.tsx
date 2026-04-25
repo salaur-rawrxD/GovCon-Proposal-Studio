@@ -17,11 +17,11 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { cn } from "@/lib/utils";
 
 const items = [
-  { href: "/dashboard", label: "Dashboard" },
-  { href: "/start", label: "Start New Response" },
+  { href: "/dashboard", label: "Home" },
+  { href: "/start", label: "New response" },
   { href: "/projects", label: "Projects" },
-  { href: "/knowledge-base", label: "Knowledge Base" },
-  { href: "/submitted-rfps", label: "Submitted RFPs" },
+  { href: "/knowledge-base", label: "Knowledge base" },
+  { href: "/submitted-rfps", label: "Submissions" },
   { href: "/templates", label: "Templates" },
   { href: "/settings", label: "Settings" },
 ] as const;
@@ -36,8 +36,8 @@ function NavLink({ href, label, onSelect }: { href: string; label: string; onSel
       className={cn(
         "whitespace-nowrap rounded-md px-2.5 py-1.5 text-sm transition-colors",
         active
-          ? "bg-primary/10 font-medium text-primary"
-          : "text-muted-foreground hover:bg-muted hover:text-foreground"
+          ? "bg-primary/10 font-medium text-foreground"
+          : "text-muted-foreground hover:bg-muted/80 hover:text-foreground"
       )}
     >
       {label}
@@ -47,14 +47,20 @@ function NavLink({ href, label, onSelect }: { href: string; label: string; onSel
 
 export function TopBar() {
   return (
-    <header className="sticky top-0 z-50 border-b border-border/80 bg-card/90 backdrop-blur-md">
-      <div className="mx-auto flex h-14 max-w-[1920px] items-center justify-between gap-2 px-3 sm:px-5">
-        <div className="flex min-w-0 items-center gap-2 lg:gap-4">
-          <Link href="/dashboard" className="flex shrink-0 items-center gap-2 font-semibold tracking-tight text-foreground">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+    <header className="sticky top-0 z-50 border-b border-border/50 bg-background/90 shadow-sm shadow-black/5 backdrop-blur-md dark:shadow-none">
+      <div className="mx-auto flex h-12 max-w-[1920px] items-center justify-between gap-2 px-3 sm:px-6">
+        <div className="flex min-w-0 items-center gap-2 lg:gap-3">
+          <Link
+            href="/dashboard"
+            className="group flex min-w-0 shrink-0 items-center gap-2.5 text-foreground"
+          >
+            <span className="flex h-8 w-8 items-center justify-center rounded-md bg-primary text-primary-foreground shadow-sm ring-1 ring-border/20">
               <FileText className="h-4 w-4" aria-hidden />
             </span>
-            <span className="hidden min-[420px]:inline">GovCon Studio</span>
+            <span className="hidden min-[480px]:flex min-w-0 flex-col leading-tight">
+              <span className="truncate text-sm font-semibold tracking-tight">GovCon Proposal Studio</span>
+              <span className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Response workspace</span>
+            </span>
           </Link>
 
           <div className="hidden min-w-0 flex-1 items-center gap-0.5 overflow-x-auto lg:flex xl:gap-1">
@@ -81,7 +87,7 @@ export function TopBar() {
               buttonVariants({ size: "icon-sm" }),
               "sm:hidden"
             )}
-            aria-label="Start new response"
+            aria-label="Create new response"
           >
             <Plus className="h-4 w-4" />
           </Link>
@@ -96,7 +102,7 @@ export function TopBar() {
             </SheetTrigger>
             <SheetContent side="right" className="w-72 p-0">
               <SheetHeader className="border-b p-4 text-left">
-                <SheetTitle>Menu</SheetTitle>
+                <SheetTitle>Navigate</SheetTitle>
               </SheetHeader>
               <div className="flex flex-col p-2">
                 {items.map((it) => (
@@ -106,7 +112,7 @@ export function TopBar() {
                 ))}
                 <div className="mt-2 border-t pt-2">
                   <Link href="/start" className={cn(buttonVariants(), "w-full")}>
-                    Start New Response
+                    New response
                   </Link>
                 </div>
               </div>

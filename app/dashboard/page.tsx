@@ -37,41 +37,41 @@ export default function DashboardPage() {
 
   return (
     <PageContainer>
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Dashboard</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Your active RFP work, deadlines, and submission pipeline at a glance.
+      <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div className="max-w-2xl">
+          <h1 className="text-balance text-2xl font-semibold tracking-tight text-foreground sm:text-3xl">Home</h1>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            Active response projects, upcoming due dates, and recent submission outcomes in one view.
           </p>
         </div>
         <Link href="/start" className={cn(buttonVariants(), "shrink-0 gap-1.5 self-start sm:self-auto")}>
           <Plus className="h-4 w-4" />
-          Start New Response
+          New response
         </Link>
       </div>
 
-      <div className="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <Card className="border-border/60 shadow-sm">
+      <div className="mb-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Card className="border-border/50 bg-card/50 shadow-sm ring-1 ring-border/5">
           <CardHeader className="pb-2">
-            <CardDescription>Total submitted</CardDescription>
+            <CardDescription>Submissions (all time)</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums">{totalSub}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="border-border/60 shadow-sm">
+        <Card className="border-border/50 bg-card/50 shadow-sm ring-1 ring-border/5">
           <CardHeader className="pb-2">
             <CardDescription>Win rate</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums">{winRate}%</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="border-border/60 shadow-sm">
+        <Card className="border-border/50 bg-card/50 shadow-sm ring-1 ring-border/5">
           <CardHeader className="pb-2">
-            <CardDescription>Pending decisions</CardDescription>
+            <CardDescription>Awaiting decision</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums">{pending}</CardTitle>
           </CardHeader>
         </Card>
-        <Card className="border-border/60 shadow-sm">
+        <Card className="border-border/50 bg-card/50 shadow-sm ring-1 ring-border/5">
           <CardHeader className="pb-2">
-            <CardDescription>Open pipeline (mock)</CardDescription>
+            <CardDescription>In evaluation</CardDescription>
             <CardTitle className="text-2xl font-semibold tabular-nums">{pipeline}</CardTitle>
           </CardHeader>
         </Card>
@@ -79,15 +79,15 @@ export default function DashboardPage() {
 
       <div className="grid gap-8 lg:grid-cols-2">
         <section className="space-y-3">
-          <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Active projects</h2>
+          <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Active responses</h2>
           {active.length === 0 ? (
-            <Card className="border-dashed">
-              <CardContent className="py-8 text-center text-sm text-muted-foreground">
-                No active projects.{" "}
-                <Link href="/start" className="font-medium text-primary underline-offset-4 hover:underline">
-                  Start a new response
+            <Card className="border-dashed border-border/60 bg-muted/20">
+              <CardContent className="py-10 text-center text-sm leading-relaxed text-muted-foreground">
+                No active response projects.{" "}
+                <Link href="/start" className="font-medium text-foreground underline-offset-4 hover:underline">
+                  Create a new response
                 </Link>{" "}
-                to create one.
+                to open a workspace.
               </CardContent>
             </Card>
           ) : (
@@ -96,7 +96,7 @@ export default function DashboardPage() {
                 <li key={p.id}>
                   <Link
                     href={`/projects/${p.id}`}
-                    className="block rounded-xl border border-border/60 bg-card p-4 shadow-sm transition hover:border-primary/20 hover:shadow"
+                    className="block rounded-xl border border-border/50 bg-card/80 p-4 shadow-sm ring-1 ring-transparent transition hover:border-border hover:ring-border/10"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
@@ -121,11 +121,11 @@ export default function DashboardPage() {
         </section>
 
         <section className="space-y-3">
-          <h2 className="text-sm font-medium uppercase tracking-wide text-muted-foreground">Upcoming due dates</h2>
-          <Card className="border-border/60 shadow-sm">
+          <h2 className="text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Upcoming due dates</h2>
+          <Card className="border-border/50 shadow-sm ring-1 ring-border/5">
             <CardContent className="p-0">
               {upcoming.length === 0 ? (
-                <p className="p-4 text-sm text-muted-foreground">No upcoming due dates in the current list.</p>
+                <p className="p-4 text-sm text-muted-foreground">No upcoming due dates among active projects.</p>
               ) : (
                 <ul className="divide-y divide-border/60">
                   {upcoming.map((p) => {
@@ -157,8 +157,8 @@ export default function DashboardPage() {
 
       <div className="mt-10 grid gap-8 lg:grid-cols-2">
         <section>
-          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">Recently updated</h2>
-          <Card>
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Recently updated</h2>
+          <Card className="border-border/50 ring-1 ring-border/5">
             <CardContent className="p-0">
               <ul className="divide-y divide-border/60">
                 {recent.map((p) => (
@@ -180,8 +180,8 @@ export default function DashboardPage() {
         </section>
 
         <section>
-          <h2 className="mb-3 text-sm font-medium uppercase tracking-wide text-muted-foreground">Submitted RFP status</h2>
-          <Card>
+          <h2 className="mb-3 text-xs font-semibold uppercase tracking-[0.08em] text-muted-foreground">Submissions activity</h2>
+          <Card className="border-border/50 ring-1 ring-border/5">
             <CardContent className="p-0">
               <ul className="max-h-64 divide-y divide-border/60 overflow-y-auto">
                 {submitted.slice(0, 6).map((s) => (
@@ -199,8 +199,8 @@ export default function DashboardPage() {
                 ))}
               </ul>
               <div className="border-t p-2">
-                <Link href="/submitted-rfps" className="inline-block px-2 py-1.5 text-sm text-primary hover:underline">
-                  View all submitted
+                <Link href="/submitted-rfps" className="inline-block px-2 py-1.5 text-sm font-medium text-foreground hover:underline">
+                  View all submissions
                 </Link>
               </div>
             </CardContent>

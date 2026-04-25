@@ -31,12 +31,12 @@ export function FinalDocumentPreview({ project, sections, onRegenerate, onExport
   const byId = Object.fromEntries(sections.map((s) => [s.id, s]));
   return (
     <div className={cn("space-y-4", className)}>
-      <Card className="border-border/60 print:shadow-none">
+      <Card className="border-border/50 print:shadow-none ring-1 ring-border/5">
         <CardHeader>
-          <CardDescription>Document viewer (preview)</CardDescription>
+          <CardDescription>Compiled response (preview)</CardDescription>
           <CardTitle className="text-xl">{project.rfpTitle}</CardTitle>
           <p className="text-sm text-muted-foreground">
-            {project.agency} · Due {project.dueDate}
+            {project.agency} · Response due {project.dueDate}
           </p>
         </CardHeader>
         <CardContent className="space-y-6 font-serif text-sm leading-relaxed">
@@ -44,7 +44,7 @@ export function FinalDocumentPreview({ project, sections, onRegenerate, onExport
             <h2 className="text-xs font-sans font-semibold uppercase tracking-widest text-muted-foreground">Technical proposal</h2>
             <h1 className="mt-3 text-2xl font-semibold text-foreground">{project.name}</h1>
             <p className="mt-2 text-muted-foreground">{project.agency}</p>
-            <p className="mt-6 text-xs text-muted-foreground">Submission date (planned): {project.dueDate}</p>
+            <p className="mt-6 text-xs text-muted-foreground">Planned submission: {project.dueDate}</p>
           </section>
           <div>
             <h3 className="mb-2 font-sans text-sm font-semibold">Table of contents</h3>
@@ -68,15 +68,17 @@ export function FinalDocumentPreview({ project, sections, onRegenerate, onExport
               </section>
             );
           })}
-          <p className="text-xs text-muted-foreground">Appendix: compliance matrix and evidence index (mock) included in full export.</p>
+          <p className="text-xs text-muted-foreground">
+            Attachments: compliance matrix and evidence index (included in the full export package when enabled).
+          </p>
         </CardContent>
       </Card>
       <div className="flex flex-wrap gap-2">
         <Button type="button" variant="secondary" onClick={onRegenerate}>
-          Regenerate final document
+          Refresh preview
         </Button>
         <Button type="button" onClick={onExport}>
-          Go to export
+          Export
         </Button>
       </div>
     </div>

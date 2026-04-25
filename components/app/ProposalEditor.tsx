@@ -23,8 +23,8 @@ type Props = {
 
 export function ProposalEditor({ section, onChange, onSave, onApprove }: Props) {
   return (
-    <Card className="border-border/60">
-      <CardHeader className="space-y-1 border-b border-border/50 pb-3">
+    <Card className="border-border/50 ring-1 ring-border/5">
+      <CardHeader className="space-y-1 border-b border-border/40 bg-muted/10 pb-3">
         <div className="flex flex-wrap items-center justify-between gap-2">
           <CardTitle className="text-lg">{section.title}</CardTitle>
           <Badge variant="outline" className="text-[10px]">
@@ -32,13 +32,13 @@ export function ProposalEditor({ section, onChange, onSave, onApprove }: Props) 
           </Badge>
         </div>
         <p className="text-sm text-muted-foreground">
-          <span className="font-medium text-foreground/90">Section goal: </span>
+          <span className="font-medium text-foreground/90">Objective: </span>
           {section.sectionGoal}
         </p>
       </CardHeader>
       <CardContent className="space-y-4 pt-4">
         <div>
-          <Label className="text-xs text-muted-foreground">Draft content</Label>
+          <Label className="text-xs text-muted-foreground">Body</Label>
           <Textarea
             value={section.body}
             onChange={(e) => onChange(section.id, "body", e.target.value)}
@@ -47,7 +47,7 @@ export function ProposalEditor({ section, onChange, onSave, onApprove }: Props) 
         </div>
         <div className="grid gap-3 sm:grid-cols-2">
           <div>
-            <Label className="text-xs text-muted-foreground">Inline notes (internal)</Label>
+            <Label className="text-xs text-muted-foreground">Internal notes</Label>
             <Textarea
               value={section.inlineNotes}
               onChange={(e) => onChange(section.id, "inlineNotes", e.target.value)}
@@ -55,7 +55,7 @@ export function ProposalEditor({ section, onChange, onSave, onApprove }: Props) 
             />
           </div>
           <div>
-            <Label className="text-xs text-muted-foreground">Source references (placeholder)</Label>
+            <Label className="text-xs text-muted-foreground">Citations (SOW, L, M)</Label>
             <Input
               value={section.sourceRefs}
               onChange={(e) => onChange(section.id, "sourceRefs", e.target.value)}
@@ -65,10 +65,10 @@ export function ProposalEditor({ section, onChange, onSave, onApprove }: Props) 
         </div>
         <div className="flex flex-wrap gap-2">
           <Button type="button" onClick={onSave}>
-            Save section
+            Save
           </Button>
           <Button type="button" variant="secondary" onClick={onApprove} disabled={section.status === "approved"}>
-            Approve section
+            Approve volume
           </Button>
         </div>
       </CardContent>

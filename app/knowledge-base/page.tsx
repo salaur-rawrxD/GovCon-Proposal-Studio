@@ -65,17 +65,18 @@ export default function KnowledgeBasePage() {
 
   return (
     <PageContainer className="max-w-5xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Knowledge base</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
-          Reusable company materials used across projects—proposals, pricing, and compliance (mock data + session uploads).
+      <div className="mb-10 max-w-2xl">
+        <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">Knowledge base</h1>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+          Central library for company-approved content—certifications, past performance, rate structures, and reusable
+          narrative. The copilot and drafting views draw from this material when configured.
         </p>
       </div>
 
-      <Card className="mb-6 border-border/60">
+      <Card className="mb-6 border-border/50 ring-1 ring-border/5">
         <CardHeader>
-          <CardTitle className="text-base">Add materials</CardTitle>
-          <CardDescription>Accepted file types: PDF, Word, CSV, Excel. Upload is simulated; files remain for this session.</CardDescription>
+          <CardTitle className="text-base">Add content</CardTitle>
+          <CardDescription>PDF, Word, CSV, or Excel. In this preview, uploads are stored for the current session only.</CardDescription>
         </CardHeader>
         <CardContent>
           <FileUploadDropzone onPickFiles={onUpload} id="kb-up" title="Drop files or click to add" />
@@ -83,8 +84,8 @@ export default function KnowledgeBasePage() {
       </Card>
 
       {rows.length === 0 ? (
-        <div className="rounded-xl border-2 border-dashed border-border/70 bg-muted/10 py-16 text-center text-sm text-muted-foreground">
-          Upload reusable company materials so the platform can draft stronger, more accurate responses.
+        <div className="rounded-xl border-2 border-dashed border-border/50 bg-muted/15 py-16 text-center text-sm leading-relaxed text-muted-foreground">
+          Add company-approved documents so proposal and copilot features can reference consistent, vetted content.
         </div>
       ) : null}
 

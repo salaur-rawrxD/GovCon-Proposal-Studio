@@ -64,15 +64,15 @@ export default function ProjectsPage() {
   return (
     <PageContainer className="max-w-6xl">
       <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Projects</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Every RFP response lives in a project. Search, filter, and open the workspace.
+        <div className="max-w-2xl">
+          <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">Projects</h1>
+          <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+            One workspace per opportunity. Search, filter by status, and open the project record.
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <Link href="/start" className={cn(buttonVariants(), "gap-1")}>
-            Start New Response
+            New response
           </Link>
         </div>
       </div>

@@ -122,7 +122,7 @@ export function ProjectDataProvider({ children }: { children: ReactNode }) {
       readinessScore: readiness,
       fitScore: fit,
       recommendation: rec,
-      nextAction: "Review the RFP Analysis, then map requirements in the compliance matrix and begin the draft response.",
+      nextAction: "Review the opportunity analysis, complete the compliance matrix, then open the response draft with your team.",
       keyDeadlines: [
         { label: "Proposals due", date: due.toISOString().slice(0, 10) },
         { label: "Q&A (typical window)", date: "See SAM.gov" },

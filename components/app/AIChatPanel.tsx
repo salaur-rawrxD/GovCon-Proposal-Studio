@@ -22,7 +22,7 @@ type Props = {
 };
 
 export function AIChatPanel({
-  title = "Proposal Assistant",
+  title = "Proposal copilot",
   section,
   messages,
   onSend,
@@ -40,9 +40,9 @@ export function AIChatPanel({
       <CardHeader className="shrink-0 border-b border-border/50 py-3">
         <CardTitle className="text-sm font-semibold">{title}</CardTitle>
         {section ? (
-          <p className="text-xs text-muted-foreground">Editing: {section.title}</p>
+          <p className="text-xs text-muted-foreground">Active section: {section.title}</p>
         ) : (
-          <p className="text-xs text-muted-foreground">Select a section to use the assistant.</p>
+          <p className="text-xs text-muted-foreground">Select a section in the list to begin.</p>
         )}
       </CardHeader>
       <CardContent className="flex min-h-0 flex-1 flex-col p-0">
@@ -53,11 +53,13 @@ export function AIChatPanel({
                 key={m.id}
                 className={cn("rounded-lg border px-2.5 py-2 text-sm", m.role === "user" ? "ml-4 border-primary/20 bg-primary/5" : "mr-2 border-border/50 bg-muted/30")}
               >
-                <p className="text-[10px] font-medium uppercase text-muted-foreground">{m.role === "user" ? "You" : "Assistant"}</p>
+                <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">
+                  {m.role === "user" ? "You" : "Copilot"}
+                </p>
                 <p className="mt-1 leading-relaxed">{m.content}</p>
                 {m.suggestedRevision && m.role === "assistant" ? (
                   <div className="mt-2 space-y-2 border-t border-border/40 pt-2">
-                    <p className="text-[10px] font-medium text-muted-foreground">Suggested revision</p>
+                    <p className="text-[10px] font-medium uppercase tracking-wider text-muted-foreground">Suggested text</p>
                     <p className="whitespace-pre-wrap text-xs leading-relaxed text-foreground/90">{m.suggestedRevision}</p>
                     <div className="flex flex-wrap gap-1.5">
                       <Button
@@ -66,7 +68,7 @@ export function AIChatPanel({
                         className="h-7 text-xs"
                         onClick={() => m.suggestedRevision && onApplyRevision(m.suggestedRevision)}
                       >
-                        Apply revision
+                        Apply to draft
                       </Button>
                       <Button
                         type="button"
@@ -75,7 +77,7 @@ export function AIChatPanel({
                         className="h-7 text-xs"
                         onClick={() => m.suggestedRevision && onInsertAsNote(m.suggestedRevision)}
                       >
-                        Insert as note
+                        Add to notes
                       </Button>
                     </div>
                     <div className="flex flex-wrap gap-1.5">
@@ -93,16 +95,18 @@ export function AIChatPanel({
           </ul>
         </ScrollArea>
         {lastAssistant?.suggestedRevision && (
-          <div className="border-t border-border/50 px-3 py-2 text-xs text-muted-foreground">
-            Quick action on last suggested revision: use buttons above, or type below for follow-up.
+          <div className="border-t border-border/50 px-3 py-2 text-xs leading-relaxed text-muted-foreground">
+            Use the actions above, or ask a follow-up. Shift+Enter adds a new line; Enter sends.
           </div>
         )}
         <div className="mt-auto space-y-2 border-t border-border/50 p-2">
-          <p className="px-1 text-[10px] text-muted-foreground">Try: “Use more government proposal tone” · “Tie to Section M” · “Shorten 30%”</p>
+          <p className="px-1 text-[10px] leading-relaxed text-muted-foreground">
+            Examples: “Align to Section M factors” · “Tighten executive tone” · “Add 508 language”
+          </p>
           <Textarea
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder="Message about the current section…"
+            placeholder="Instruct the copilot about this section…"
             className="min-h-[72px] text-sm"
             disabled={!section}
             onKeyDown={(e) => {

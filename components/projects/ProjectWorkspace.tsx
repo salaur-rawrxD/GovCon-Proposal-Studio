@@ -50,7 +50,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { useProjectData } from "@/contexts/ProjectDataContext";
-import type { Project, ProposalSectionModel, ProposalChatMessage, ProjectReviewItem } from "@/lib/mock/types";
+import type { Project, ProposalSectionModel, ProposalChatMessage, ProjectReviewItem, FitRecommendation } from "@/lib/mock/types";
 import { acceptUpload } from "@/lib/mock/file-utils";
 import {
   getRfpAnalysis,
@@ -65,26 +65,32 @@ import { cn } from "@/lib/utils";
 const TABS: NavItem[] = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
   { id: "rfp-files", label: "RFP files", icon: FileText },
-  { id: "rfp-analysis", label: "RFP analysis", icon: LineChart },
-  { id: "compliance", label: "Compliance matrix", icon: Shield },
+  { id: "rfp-analysis", label: "Analysis", icon: LineChart },
+  { id: "compliance", label: "Compliance", icon: Shield },
   { id: "response-draft", label: "Response draft", icon: ClipboardList },
-  { id: "review", label: "Review & approval", icon: CheckCircle2 },
+  { id: "review", label: "Review", icon: CheckCircle2 },
   { id: "final", label: "Final document", icon: Package },
   { id: "export", label: "Export", icon: Download },
 ];
+
+const PURSUIT_REC: Record<FitRecommendation, string> = {
+  go: "Go",
+  no_go: "No-Go",
+  go_with_conditions: "Go with conditions",
+};
 
 const validTab = (t: string | null) => (TABS.some((x) => x.id === t) ? t! : "overview");
 
 function makeReviewItems(sections: ProposalSectionModel[], matrixOk: boolean, exportReady: boolean): ProjectReviewItem[] {
   const ok = (id: string) => sections.find((s) => s.id === id)?.status === "approved";
   return [
-    { id: "executive", label: "Executive Summary approved", done: ok("executive") },
-    { id: "technical", label: "Technical approach approved", done: ok("technical") },
-    { id: "ux", label: "UX approach approved", done: ok("ux") },
-    { id: "project_plan", label: "Project / PM plan approved", done: ok("pm") },
+    { id: "executive", label: "Executive summary approved", done: ok("executive") },
+    { id: "technical", label: "Technical volume approved", done: ok("technical") },
+    { id: "ux", label: "User experience / design approved", done: ok("ux") },
+    { id: "project_plan", label: "Program management plan approved", done: ok("pm") },
     { id: "past_perf", label: "Past performance approved", done: ok("past_performance") },
     { id: "matrix", label: "Compliance matrix complete", done: matrixOk },
-    { id: "export", label: "Export package ready", done: exportReady },
+    { id: "export", label: "Export package reviewed", done: exportReady },
   ];
 }
 
@@ -92,21 +98,24 @@ function mockReply(userText: string, sectionId: string): { content: string; revi
   const t = userText.toLowerCase();
   if (t.includes("executive") || t.includes("shorter") || t.includes("30%")) {
     return {
-      content: "Here is a shorter, executive-style revision focused on mission outcome and low-risk delivery.",
+      content:
+        "Below is a concise, executive-style opening that leads with mission impact and risk posture before technical detail.",
       revision:
         "HHS is procuring a partner that can reduce delivery risk in the first year while measurably improving security outcomes. Our plan centers on a bounded transition, a named accountability chain (PM + ISSO), and cATO/cross-program metrics evaluators can score—so the technical factor reads as *managed risk*, not a feature catalog.",
     };
   }
   if (t.includes("accessib") || t.includes("508")) {
     return {
-      content: "Added accessibility and Section 508 language consistent with a VPAT + testing cadence per Section L.",
+      content:
+        "Incorporated Section 508 and accessibility commitments aligned to WCAG 2.1 AA, VPAT, and your stated testing cadence per Section L.",
       revision: sectionId
         ? "We commit to WCAG 2.1 AA conformance for deliverable UIs, supported by a VPAT, regression testing on representative workflows, and a prioritized defect backlog. Accessibility is a release gate, not a post-award surprise."
         : "Accessibility commitments appear in the UX section with explicit testing and remediation governance.",
     };
   }
   return {
-    content: "I revised the section for a stronger government proposal tone, tied to the evaluation criteria and the PWS language the agency cares about most.",
+    content:
+      "Revised for federal proposal tone: explicit ties to the evaluation factors and PWS language the agency will score, with outcomes stated before process.",
     revision:
       "The government is buying accountable outcomes, not “best effort” delivery. In this program, the dominant evaluation themes are: (1) a defensible cATO/continuous monitoring story, (2) disciplined change and release control in production, and (3) transparent reporting that supports FISMA and mission continuity. The sections below connect each PWS sub-factor to a named deliverable, a metric, and an owner, so the evaluation team can score compliance without inferring intent.",
   };
@@ -235,49 +244,57 @@ export function ProjectWorkspace({ project: initial }: Props) {
             aria-pressed={rightOpen}
           >
             <PanelRight className="h-3.5 w-3.5" />
-            Assistant
+            Copilot
           </Button>
         </div>
       </TopNav>
 
-      <div className="border-b border-border/50 bg-gradient-to-b from-card/80 to-background px-4 py-4">
-        <div className="mx-auto flex max-w-[1600px] flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-          <div className="min-w-0 space-y-1">
-            <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground">RFP / opportunity</p>
-            <h1 className="text-balance text-xl font-semibold tracking-tight sm:text-2xl">{project.rfpTitle}</h1>
-            <div className="mt-1 flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
+      <div className="border-b border-border/40 bg-muted/25 px-4 py-5 shadow-sm shadow-black/[0.02] dark:shadow-none">
+        <div className="mx-auto flex max-w-[1600px] flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
+          <div className="min-w-0 space-y-1.5">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Opportunity</p>
+            <h1 className="text-balance text-xl font-semibold tracking-tight text-foreground sm:text-2xl">{project.rfpTitle}</h1>
+            <div className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-muted-foreground">
               <span>{project.agency}</span>
-              <span>·</span>
-              <span>Due {project.dueDate}</span>
-              <span>·</span>
+              <span className="text-border" aria-hidden>
+                ·
+              </span>
+              <span>Proposal due {project.dueDate}</span>
+              <span className="text-border" aria-hidden>
+                ·
+              </span>
               <ProjectStatusBadge status={project.status} />
-              <span>·</span>
-              <span>Fit {project.fitScore}</span>
+              <span className="text-border" aria-hidden>
+                ·
+              </span>
+              <span className="tabular-nums">Opportunity fit {project.fitScore}</span>
             </div>
           </div>
-          <div className="flex shrink-0 flex-col gap-2 sm:flex-row sm:items-center">
-            <div className="text-right text-sm">
-              <p className="text-xs text-muted-foreground">Next action</p>
-              <p className="line-clamp-2 max-w-xs font-medium text-foreground">{project.nextAction}</p>
+          <div className="flex shrink-0 flex-col gap-3 sm:flex-row sm:items-center lg:max-w-md">
+            <div className="text-sm sm:text-right">
+              <p className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Recommended action</p>
+              <p className="mt-0.5 line-clamp-3 text-foreground">{project.nextAction}</p>
             </div>
-            <Link href="#workspace-main" className={buttonVariants()}>
-              Continue in workspace
+            <Link href="#workspace-main" className={cn(buttonVariants(), "shrink-0")}>
+              Go to workspace
             </Link>
           </div>
         </div>
       </div>
 
       <div id="workspace-main" className="mx-auto flex min-h-0 w-full max-w-[1600px] flex-1 flex-col gap-0 lg:flex-row">
-        <aside className="hidden w-56 shrink-0 border-r border-border/50 bg-card/20 lg:block">
-          <p className="px-2 pt-2 text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">Project</p>
+        <aside className="hidden w-56 shrink-0 border-r border-border/40 bg-card/30 lg:block">
+          <p className="px-3 pt-3 text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Workspace</p>
           <SidebarNav items={TABS} value={tab} onValueChange={setTab} />
         </aside>
 
-        <div className="border-b border-border/50 p-2 lg:hidden">
-          <label className="mb-1 block text-[10px] font-medium uppercase text-muted-foreground">Jump to</label>
+        <div className="border-b border-border/40 bg-muted/10 p-3 lg:hidden">
+          <label className="mb-1.5 block text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">
+            Section
+          </label>
           <Select value={tab} onValueChange={(v) => v && setTab(v)}>
             <SelectTrigger>
-              <SelectValue placeholder="Tab" />
+              <SelectValue placeholder="Choose section" />
             </SelectTrigger>
             <SelectContent>
               {TABS.map((t) => (
@@ -290,50 +307,59 @@ export function ProjectWorkspace({ project: initial }: Props) {
         </div>
 
         <div className="flex min-w-0 flex-1">
-          <main className="min-w-0 flex-1 space-y-6 p-4 lg:p-6">
-            <p className="text-xs text-muted-foreground">Now viewing: {tabLabel}</p>
+          <main className="min-w-0 flex-1 space-y-6 p-4 lg:px-8 lg:py-6">
+            <div className="flex items-baseline gap-2 border-b border-border/30 pb-3">
+              <span className="text-[10px] font-semibold uppercase tracking-[0.12em] text-muted-foreground">Workspace</span>
+              <span className="text-muted-foreground/50" aria-hidden>
+                /
+              </span>
+              <span className="text-sm font-medium text-foreground">{tabLabel}</span>
+            </div>
 
             {tab === "overview" && (
               <>
                 <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                   <FitScoreCard fitScore={project.fitScore} recommendation={project.recommendation} className="md:col-span-1" />
-                  <Card className="border-border/60 md:col-span-1">
+                  <Card className="border-border/50 bg-card/50 ring-1 ring-border/5 md:col-span-1">
                     <CardHeader className="pb-2">
-                      <CardDescription>Readiness score</CardDescription>
+                      <CardDescription>Readiness</CardDescription>
                       <CardTitle className="text-3xl tabular-nums">{project.readinessScore}%</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <Progress value={project.readinessScore} className="h-2" />
+                      <Progress value={project.readinessScore} className="h-1.5" />
+                      <p className="mt-2 text-xs text-muted-foreground">Composite of draft progress, compliance coverage, and review status.</p>
                     </CardContent>
                   </Card>
-                  <Card className="border-border/60">
+                  <Card className="border-border/50 bg-card/50 ring-1 ring-border/5">
                     <CardHeader className="pb-2">
-                      <CardDescription>Approved sections</CardDescription>
+                      <CardDescription>Approved volumes</CardDescription>
                       <CardTitle className="text-3xl tabular-nums">
                         {approvedCount} / {sections.length}
                       </CardTitle>
                     </CardHeader>
                     <CardContent>
-                      <p className="text-sm text-muted-foreground">All sections require approval before final document generation in this mock workflow.</p>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        Each section must be approved before the compiled response can be generated.
+                      </p>
                     </CardContent>
                   </Card>
                 </div>
-                <Card>
+                <Card className="border-border/50 ring-1 ring-border/5">
                   <CardHeader>
-                    <CardTitle className="text-base">Project summary</CardTitle>
-                    <CardDescription>High-signal view for capture and proposal leads.</CardDescription>
+                    <CardTitle className="text-base">Opportunity summary</CardTitle>
+                    <CardDescription>For capture managers, solution architects, and proposal leads.</CardDescription>
                   </CardHeader>
                   <CardContent className="grid gap-4 text-sm sm:grid-cols-2">
                     <div>
-                      <p className="text-xs font-medium text-muted-foreground">Primary recommendation</p>
-                      <p className="mt-1 font-medium capitalize">{project.recommendation.replace(/_/g, " ")}</p>
+                      <p className="text-xs font-medium text-muted-foreground">Pursuit recommendation</p>
+                      <p className="mt-1 font-medium">{PURSUIT_REC[project.recommendation]}</p>
                     </div>
                     <div>
                       <p className="text-xs font-medium text-muted-foreground">Owner</p>
                       <p className="mt-1 font-medium">{project.owner}</p>
                     </div>
                     <div className="sm:col-span-2">
-                      <p className="text-xs font-medium text-muted-foreground">Next recommended action</p>
+                      <p className="text-xs font-medium text-muted-foreground">Recommended next step</p>
                       <p className="mt-1 font-medium text-foreground">{project.nextAction}</p>
                     </div>
                     <div className="sm:col-span-2">
@@ -358,27 +384,29 @@ export function ProjectWorkspace({ project: initial }: Props) {
                           ))}
                         </ul>
                       ) : (
-                        <p className="mt-1 text-muted-foreground">No tracked risks in this project profile.</p>
+                        <p className="mt-1 text-muted-foreground">No risks recorded for this opportunity.</p>
                       )}
                     </div>
                   </CardContent>
                 </Card>
                 <div className="flex flex-wrap gap-2">
                   <Button type="button" onClick={() => setTab("rfp-analysis")}>
-                    Review fit assessment
+                    View analysis
                   </Button>
                   <Button type="button" variant="secondary" onClick={beginDrafting}>
-                    Start draft response
+                    Open response draft
                   </Button>
                 </div>
               </>
             )}
 
             {tab === "rfp-files" && (
-              <Card>
+              <Card className="border-border/50 ring-1 ring-border/5">
                 <CardHeader>
-                  <CardTitle className="text-base">RFP & attachment files</CardTitle>
-                  <CardDescription>Processing status is simulated. Add amendments or SOW changes anytime.</CardDescription>
+                  <CardTitle className="text-base">Solicitation files</CardTitle>
+                  <CardDescription>
+                    Source documents and amendments. Processing states shown here reflect this preview environment.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <input
@@ -416,7 +444,7 @@ export function ProjectWorkspace({ project: initial }: Props) {
                     </TableBody>
                   </Table>
                   <Button type="button" variant="secondary" onClick={() => fileInput.current?.click()}>
-                    Add more files
+                    Add files
                   </Button>
                 </CardContent>
               </Card>
@@ -425,10 +453,12 @@ export function ProjectWorkspace({ project: initial }: Props) {
             {tab === "rfp-analysis" && <AnalysisReport analysis={analysis} onBeginDrafting={beginDrafting} />}
 
             {tab === "compliance" && (
-              <Card>
+              <Card className="border-border/50 ring-1 ring-border/5">
                 <CardHeader>
                   <CardTitle className="text-base">Compliance matrix</CardTitle>
-                  <CardDescription>Map requirements to the volume and the evidence you will bring to the evaluation.</CardDescription>
+                  <CardDescription>
+                    Map each requirement to your response location, owner, and substantiating evidence for evaluators.
+                  </CardDescription>
                 </CardHeader>
                 <CardContent>
                   <ComplianceMatrixTable rows={compliance} />
@@ -441,7 +471,7 @@ export function ProjectWorkspace({ project: initial }: Props) {
                 {selected && (
                   <div className="grid gap-4 lg:grid-cols-[minmax(220px,280px),1fr]">
                     <div>
-                      <p className="mb-2 text-sm font-medium">Proposal sections</p>
+                      <p className="mb-2 text-sm font-medium text-foreground">Volumes and sections</p>
                       <ProposalSectionList
                         sections={sections}
                         selectedId={selected.id}
@@ -464,10 +494,10 @@ export function ProjectWorkspace({ project: initial }: Props) {
 
             {tab === "review" && (
               <div className="grid gap-4 lg:grid-cols-2">
-                <Card>
+                <Card className="border-border/50 ring-1 ring-border/5">
                   <CardHeader>
-                    <CardTitle className="text-base">Readiness & approval</CardTitle>
-                    <CardDescription>Final quality score (mock): {quality} / 100</CardDescription>
+                    <CardTitle className="text-base">Readiness and approval</CardTitle>
+                    <CardDescription>Quality index (illustrative): {quality} of 100</CardDescription>
                   </CardHeader>
                   <CardContent>
                     <ApprovalChecklist
@@ -476,7 +506,7 @@ export function ProjectWorkspace({ project: initial }: Props) {
                       totalSections={sections.length}
                       warning={
                         needsApproval
-                          ? `${needsApproval} section${needsApproval === 1 ? "" : "s"} still need approval before the final document can be generated.`
+                          ? `${needsApproval} section${needsApproval === 1 ? "" : "s"} must be approved before the final response volume can be generated.`
                           : null
                       }
                       allApproved={allSectionsApproved}
@@ -484,13 +514,13 @@ export function ProjectWorkspace({ project: initial }: Props) {
                     />
                   </CardContent>
                 </Card>
-                <Card>
+                <Card className="border-border/50 ring-1 ring-border/5">
                   <CardHeader>
-                    <CardTitle className="text-base">Open risks & compliance gaps</CardTitle>
+                    <CardTitle className="text-base">Gaps and inputs</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4 text-sm">
                     <div>
-                      <p className="font-medium">Open risks</p>
+                      <p className="font-medium">Program risks</p>
                       <ul className="mt-1 list-inside list-disc text-muted-foreground">
                         {project.openRisks.map((r) => (
                           <li key={r}>{r}</li>
@@ -498,7 +528,7 @@ export function ProjectWorkspace({ project: initial }: Props) {
                       </ul>
                     </div>
                     <div>
-                      <p className="font-medium">Missing inputs</p>
+                      <p className="font-medium">Outstanding inputs</p>
                       <ul className="mt-1 list-inside list-disc text-muted-foreground">
                         {review.missing.map((m) => (
                           <li key={m}>{m}</li>
@@ -506,7 +536,7 @@ export function ProjectWorkspace({ project: initial }: Props) {
                       </ul>
                     </div>
                     <div>
-                      <p className="font-medium">Compliance gaps (from review)</p>
+                      <p className="font-medium">Compliance findings</p>
                       <ul className="mt-1 list-inside list-disc text-muted-foreground">
                         {review.issues.map((m) => (
                           <li key={m}>{m}</li>
@@ -515,11 +545,11 @@ export function ProjectWorkspace({ project: initial }: Props) {
                     </div>
                   </CardContent>
                 </Card>
-                <Card className="lg:col-span-2">
+                <Card className="lg:col-span-2 border-border/50 ring-1 ring-border/5">
                   <CardHeader>
                     <CardTitle className="text-base flex items-center gap-2">
                       <MessageSquare className="h-4 w-4" />
-                      Review comments
+                      Reviewer notes
                     </CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-2">
@@ -533,11 +563,11 @@ export function ProjectWorkspace({ project: initial }: Props) {
                     ))}
                   </CardContent>
                 </Card>
-                <Card className="lg:col-span-2 border-amber-500/25 bg-amber-500/5">
+                <Card className="lg:col-span-2 border-amber-500/20 bg-amber-500/[0.04]">
                   <CardHeader>
-                    <CardTitle className="flex items-center gap-2 text-base text-amber-900 dark:text-amber-200">
+                    <CardTitle className="flex items-center gap-2 text-base text-amber-950 dark:text-amber-200">
                       <AlertTriangle className="h-4 w-4" />
-                      Evaluator read-through flags
+                      Evaluation risk flags
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -563,10 +593,11 @@ export function ProjectWorkspace({ project: initial }: Props) {
                     onExport={() => setTab("export")}
                   />
                 ) : (
-                  <Card>
-                    <CardContent className="py-8 text-center text-sm text-muted-foreground">
-                      Approve all proposal sections in <strong>Response draft</strong> to assemble the final package. {needsApproval} section
-                      {needsApproval === 1 ? "" : "s"} remaining.
+                  <Card className="border-dashed border-border/60">
+                    <CardContent className="py-10 text-center text-sm leading-relaxed text-muted-foreground">
+                      Approve all sections in <strong className="font-medium text-foreground">Response draft</strong> before
+                      the compiled final volume is available. {needsApproval} section{needsApproval === 1 ? "" : "s"}{" "}
+                      remaining.
                     </CardContent>
                   </Card>
                 )}
@@ -584,8 +615,9 @@ export function ProjectWorkspace({ project: initial }: Props) {
               />
             )}
             {exportMarked ? (
-              <p className="text-center text-sm text-emerald-600 dark:text-emerald-400">
-                Marked as submitted in this session (mock). See Submitted RFPs for historical tracking.
+              <p className="text-center text-sm text-emerald-700 dark:text-emerald-400/90">
+                Submission recorded for this session. Use <span className="font-medium">Submissions</span> in the
+                application header to review outcomes and value.
               </p>
             ) : null}
           </main>
@@ -600,27 +632,33 @@ export function ProjectWorkspace({ project: initial }: Props) {
                   onApplyRevision={applyRevision}
                   onInsertAsNote={(t) => selected && onSectionField(selected.id, "inlineNotes", (selected.inlineNotes + "\n" + t).trim())}
                   onRegenerate={() => {
-                    onSendChat("Regenerate the suggested revision with a stronger government-proposal voice.");
+                    onSendChat(
+                      "Regenerate the suggested text in federal proposal tone, explicitly tied to the evaluation criteria and PWS."
+                    );
                   }}
                   onReject={() => setChat((c) => c.slice(0, -1))}
                 />
               ) : (
-                <Card>
+                <Card className="border-border/50 ring-1 ring-border/5">
                   <CardHeader>
-                    <CardTitle className="text-sm">Opportunity brief</CardTitle>
-                    <CardDescription>Quick prompts while you read the analysis (mock)</CardDescription>
+                    <CardTitle className="text-sm">Analysis checklist</CardTitle>
+                    <CardDescription>Suggested focus areas while you read the report.</CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2 text-sm text-muted-foreground">
                     {[
-                      "Summarize the top three Section M differentiators in one paragraph.",
-                      "List gaps that require a question to the CO before submit.",
+                      "State the top three evaluation differentiators in one paragraph, tied to Section M language.",
+                      "List clarifying questions for the contracting officer before submission.",
                     ].map((q) => (
-                      <div key={q} className="flex gap-2 rounded-md border p-2">
-                        <Send className="h-3.5 w-3.5 shrink-0" />
+                      <div key={q} className="flex gap-2.5 rounded-md border border-border/50 bg-card/30 p-2.5">
+                        <Send className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted-foreground" />
                         {q}
                       </div>
                     ))}
-                    <p className="text-xs">Full conversational assistant is in Response draft, tied to the selected section.</p>
+                    <p className="text-xs leading-relaxed">
+                      The full <strong className="font-medium text-foreground">Copilot</strong> is available in{" "}
+                      <strong className="font-medium text-foreground">Response draft</strong>, scoped to the section you
+                      select.
+                    </p>
                   </CardContent>
                 </Card>
               )}

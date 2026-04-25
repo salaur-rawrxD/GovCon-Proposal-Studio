@@ -22,10 +22,10 @@ export function SidebarNav({ items, value, onValueChange, className }: Props) {
             type="button"
             onClick={() => onValueChange(t.id)}
             className={cn(
-              "flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm transition",
+              "flex w-full items-center gap-2.5 rounded-md border border-transparent px-3 py-2 text-left text-sm transition-colors",
               active
-                ? "bg-primary/10 font-medium text-primary"
-                : "text-muted-foreground hover:bg-muted/60 hover:text-foreground"
+                ? "border-border/50 bg-background font-medium text-foreground shadow-sm ring-1 ring-border/10"
+                : "text-muted-foreground hover:border-border/40 hover:bg-muted/50 hover:text-foreground"
             )}
           >
             <I className="h-4 w-4 shrink-0" aria-hidden />

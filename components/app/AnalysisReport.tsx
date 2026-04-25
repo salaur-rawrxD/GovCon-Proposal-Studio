@@ -15,9 +15,18 @@ const recLabel: Record<FitRecommendation, string> = {
 const cots: Record<CotsLikelihood, string> = { low: "Low", medium: "Medium", high: "High" };
 
 const nextCta: Record<string, { label: string; note: string }> = {
-  proceed_draft: { label: "Begin Drafting Response", note: "Generates a structured response workspace from the analysis (mock)." },
-  pursue_conditions: { label: "Pursue with conditions", note: "Move to draft while closing gaps in parallel (mock)." },
-  no_bid: { label: "Record no-bid decision", note: "Use capture workflow to document rationale (mock)." },
+  proceed_draft: {
+    label: "Continue to response draft",
+    note: "Proceed to structured volumes with your team; capture can close gaps in parallel with drafting.",
+  },
+  pursue_conditions: {
+    label: "Proceed with conditions",
+    note: "Advance to drafting while mitigations and open items are tracked in the workspace.",
+  },
+  no_bid: {
+    label: "Record no-bid",
+    note: "Document decision rationale in your capture process and retain this analysis for pipeline reporting.",
+  },
 };
 
 type Props = {
@@ -28,8 +37,8 @@ type Props = {
 
 function Section({ title, children, id }: { title: string; children: ReactNode; id: string }) {
   return (
-    <Card className="overflow-hidden border-border/60 shadow-sm" id={id}>
-      <CardHeader className="border-b border-border/40 bg-muted/20 py-3">
+    <Card className="overflow-hidden border-border/50 shadow-sm ring-1 ring-border/5" id={id}>
+      <CardHeader className="border-b border-border/40 bg-muted/15 py-3">
         <CardTitle className="text-base font-semibold tracking-tight">{title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3 pt-4 text-sm leading-relaxed text-foreground">{children}</CardContent>
@@ -44,14 +53,14 @@ export function AnalysisReport({ analysis, onBeginDrafting, className }: Props) 
     <div className={cn("relative space-y-4", className)}>
       <div className="grid gap-3 lg:grid-cols-[1fr_auto]">
         <div className="space-y-3">
-          <Section title="1. RFP snapshot" id="analysis-snapshot">
+          <Section title="1. Solicitation snapshot" id="analysis-snapshot">
             <div className="grid gap-3 sm:grid-cols-2">
               <div>
                 <p className="text-xs font-medium uppercase text-muted-foreground">Agency / organization</p>
                 <p className="mt-0.5 font-medium">{a.snapshot.agency}</p>
               </div>
               <div>
-                <p className="text-xs font-medium uppercase text-muted-foreground">Project / opportunity</p>
+                <p className="text-xs font-medium uppercase text-muted-foreground">Solicitation title</p>
                 <p className="mt-0.5 font-medium">{a.snapshot.projectName}</p>
               </div>
             </div>
@@ -230,15 +239,15 @@ export function AnalysisReport({ analysis, onBeginDrafting, className }: Props) 
         </div>
       </Section>
 
-      <div className="pointer-events-none sticky bottom-0 z-10 -mx-1 border-t border-border/60 bg-gradient-to-t from-background via-background to-transparent py-3 dark:from-background">
+      <div className="pointer-events-none sticky bottom-0 z-10 -mx-1 border-t border-border/50 bg-gradient-to-t from-background via-background to-transparent py-3 dark:from-background">
         <div className="pointer-events-auto mx-auto max-w-3xl">
           {a.recommendedNextStep === "no_bid" ? (
-            <p className="text-center text-sm text-muted-foreground">No-bid recommendation for this project profile.</p>
+            <p className="text-center text-sm text-muted-foreground">Recorded recommendation: no-bid for this opportunity profile.</p>
           ) : (
-            <div className="flex flex-col items-stretch justify-center gap-2 rounded-xl border border-border/60 bg-card p-3 shadow-lg sm:flex-row sm:items-center sm:justify-between">
-              <p className="text-sm font-medium">Ready to move into structured drafting?</p>
-              <Button onClick={onBeginDrafting} className="w-full sm:w-auto" size="lg">
-                Begin Drafting Response
+            <div className="flex flex-col items-stretch justify-center gap-2 rounded-xl border border-border/50 bg-card/95 p-3 shadow-lg ring-1 ring-border/10 sm:flex-row sm:items-center sm:justify-between">
+              <p className="text-sm text-muted-foreground">When your team is aligned on fit and risk, open the response workspace to draft and review by volume.</p>
+              <Button onClick={onBeginDrafting} className="w-full shrink-0 sm:w-auto" size="lg">
+                Open response draft
                 <ArrowRight className="ml-1.5 h-4 w-4" />
               </Button>
             </div>

@@ -16,8 +16,8 @@ export function FileUploadDropzone({
   onPickFiles,
   className,
   id: inputId = "file-upload",
-  title = "Drop files here or click to browse",
-  subtitle = "PDF · Word · CSV · Excel",
+  title = "Upload files",
+  subtitle = "PDF, Word, CSV, or Excel",
   children,
 }: Props) {
   return (

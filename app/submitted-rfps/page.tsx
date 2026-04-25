@@ -34,8 +34,11 @@ export default function SubmittedRfpsPage() {
 
   return (
     <PageContainer className="max-w-6xl">
-      <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Submitted RFPs</h1>
-      <p className="mt-1 text-sm text-muted-foreground">Track submitted proposals, outcomes, and value (mock data).</p>
+      <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">Submissions</h1>
+      <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+        Historical proposals, decision status, and contract value. Use this view for capture retrospectives and pipeline
+        reporting (sample data in this environment).
+      </p>
 
       <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
         <Card>
@@ -58,13 +61,13 @@ export default function SubmittedRfpsPage() {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <p className="text-xs text-muted-foreground">Total pipeline value (mock)</p>
+            <p className="text-xs text-muted-foreground">Pipeline value (illustrative)</p>
             <CardTitle className="text-xl tabular-nums">{pipelineValue}</CardTitle>
           </CardHeader>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <p className="text-xs text-muted-foreground">Won value (mock)</p>
+            <p className="text-xs text-muted-foreground">Won value (illustrative)</p>
             <CardTitle className="text-2xl tabular-nums">{wonValue}</CardTitle>
           </CardHeader>
         </Card>

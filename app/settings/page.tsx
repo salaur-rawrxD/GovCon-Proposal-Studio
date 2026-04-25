@@ -8,15 +8,15 @@ import { Button } from "@/components/ui/button";
 export default function SettingsPage() {
   return (
     <PageContainer className="max-w-2xl">
-      <h1 className="text-2xl font-semibold tracking-tight sm:text-3xl">Settings</h1>
-      <p className="mt-1 text-sm text-muted-foreground">
-        Organization profile, integrations, and environment configuration. UI only—no data is saved.
+      <h1 className="text-balance text-2xl font-semibold tracking-tight sm:text-3xl">Settings</h1>
+      <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Organization profile, connections, and environment. Values below are not persisted in this preview.
       </p>
 
-      <Card className="mt-8">
+      <Card className="mt-8 border-border/50 ring-1 ring-border/5">
         <CardHeader>
-          <CardTitle className="text-base">Company</CardTitle>
-          <CardDescription>Displayed on proposals and in your knowledge base (mock form).</CardDescription>
+          <CardTitle className="text-base">Organization</CardTitle>
+          <CardDescription>Identity data surfaced on coversheets and in knowledge-base exports when enabled.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-1.5">

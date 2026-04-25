@@ -6,7 +6,7 @@ import type { FitRecommendation } from "@/lib/mock/types";
 const recLabel: Record<FitRecommendation, string> = {
   go: "Go",
   no_go: "No-Go",
-  go_with_conditions: "Go w/ conditions",
+  go_with_conditions: "Go with conditions",
 };
 
 export function FitScoreCard({
@@ -21,9 +21,9 @@ export function FitScoreCard({
   compact?: boolean;
 }) {
   return (
-    <Card className={cn("border-border/60", className)}>
+    <Card className={cn("border-border/50 bg-card/50 ring-1 ring-border/5", className)}>
       <CardHeader className={cn("pb-2", compact && "p-4 pb-2")}>
-        <CardDescription>Fit score</CardDescription>
+        <CardDescription>Opportunity fit</CardDescription>
         <div className="flex items-baseline justify-between gap-2">
           <CardTitle className="text-3xl tabular-nums sm:text-4xl">{fitScore}</CardTitle>
           <span
@@ -40,7 +40,10 @@ export function FitScoreCard({
       </CardHeader>
       <CardContent className={cn(compact && "p-4 pt-0")}>
         <Progress value={fitScore} className="h-2" />
-        <p className="mt-1.5 text-xs text-muted-foreground">Scaled 0–100 from solicitation fit vs. your knowledge base and past performance (mock scoring).</p>
+        <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+          Index 0–100, combining solicitation fit against your content library, credentials, and past performance
+          (illustrative scoring in this preview).
+        </p>
       </CardContent>
     </Card>
   );

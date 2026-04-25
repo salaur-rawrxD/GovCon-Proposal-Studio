@@ -17,16 +17,16 @@ function ProjectById() {
   if (!project) {
     return (
       <PageContainer>
-        <h1 className="text-2xl font-semibold">Project not found</h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          This project may not exist in your session. Start from the dashboard or create a new response.
+        <h1 className="text-2xl font-semibold">Project unavailable</h1>
+        <p className="mt-2 max-w-md text-sm leading-relaxed text-muted-foreground">
+          This record is not in the current session. Return to Home or create a new response to start a workspace.
         </p>
         <div className="mt-4 flex gap-2">
           <Link href="/dashboard" className={buttonVariants()}>
-            Dashboard
+            Home
           </Link>
           <Link href="/start" className={buttonVariants({ variant: "outline" })}>
-            Start New Response
+            New response
           </Link>
         </div>
       </PageContainer>
